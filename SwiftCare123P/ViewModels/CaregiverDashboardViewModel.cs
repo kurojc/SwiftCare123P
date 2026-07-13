@@ -117,16 +117,28 @@ public partial class CaregiverDashboardViewModel : ObservableObject
     {
         try
         {
-            // TODO: Implement database call to fetch caregiver profile
-            // For now, using placeholder data
-            ProfileModel = new CaregiverModel
+            var profile = await _dbService.GetCaregiverProfileAsync(_caregiverId);
+
+            if (profile != null)
             {
-                FullName = GreetingName,
-                ContactNo = "",
-                Address = "",
-                HourlyRateDisplay = "",
-                Bio = ""
-            };
+                ProfileModel = profile;
+                ProfileName = string.IsNullOrWhiteSpace(profile.FullName) ? GreetingName : profile.FullName;
+                BioCharCount = $"({profile.Bio?.Length ?? 0}/150)";
+            }
+            else
+            {
+                // No profile on record yet - fall back to placeholder defaults
+                ProfileModel = new CaregiverModel
+                {
+                    CaregiverID = _caregiverId,
+                    FullName = GreetingName,
+                    ContactNo = "",
+                    Address = "",
+                    HourlyRateDisplay = "",
+                    Bio = ""
+                };
+                BioCharCount = "(0/150)";
+            }
         }
         catch (Exception ex)
         {
@@ -138,12 +150,16 @@ public partial class CaregiverDashboardViewModel : ObservableObject
     {
         try
         {
-            // TODO: Implement database calls for stats
-            // Placeholder implementation
-            TotalBookings = "0";
-            PendingBookings = "0";
-            CompletedBookings = "0";
-            AverageRating = "�";
+            var bookings = await _dbService.GetCaregiverBookingsAsync(_caregiverId);
+
+            TotalBookings = bookings.Count.ToString();
+            PendingBookings = bookings.Count(b => b.Status == "Pending").ToString();
+            CompletedBookings = bookings.Count(b => b.Status == "Completed").ToString();
+
+            var reviews = await _dbService.GetCaregiverReviewsAsync(_caregiverId);
+            AverageRating = reviews.Count > 0
+                ? reviews.Average(r => r.Rating).ToString("0.0")
+                : (ProfileModel.AvgRating > 0 ? ProfileModel.AvgRating.ToString("0.0") : "N/A");
         }
         catch (Exception ex)
         {
@@ -157,21 +173,18 @@ public partial class CaregiverDashboardViewModel : ObservableObject
         {
             RecentBookings.Clear();
             AllBookings.Clear();
-            HasNoBookings = true;
-            HasNoAllBookings = true;
 
-            // TODO: Implement database call to fetch bookings
-            // var bookings = await _dbService.GetCaregiverBookingsAsync(_caregiverId);
-            // foreach (var booking in bookings)
-            // {
-            //     AllBookings.Add(booking);
-            //     if (RecentBookings.Count < 5)
-            //         RecentBookings.Add(booking);
-            // }
-            // HasNoBookings = RecentBookings.Count == 0;
-            // HasNoAllBookings = AllBookings.Count == 0;
+            var bookings = await _dbService.GetCaregiverBookingsAsync(_caregiverId);
 
-            await Task.CompletedTask;
+            foreach (var booking in bookings.OrderByDescending(b => b.BookingDate))
+            {
+                AllBookings.Add(booking);
+                if (RecentBookings.Count < 5)
+                    RecentBookings.Add(booking);
+            }
+
+            HasNoBookings = RecentBookings.Count == 0;
+            HasNoAllBookings = AllBookings.Count == 0;
         }
         catch (Exception ex)
         {
@@ -184,19 +197,16 @@ public partial class CaregiverDashboardViewModel : ObservableObject
         try
         {
             Reviews.Clear();
-            HasNoReviews = true;
-            ReviewCount = "0 reviews";
 
-            // TODO: Implement database call to fetch reviews
-            // var reviews = await _dbService.GetCaregiverReviewsAsync(_caregiverId);
-            // foreach (var review in reviews)
-            // {
-            //     Reviews.Add(review);
-            // }
-            // HasNoReviews = Reviews.Count == 0;
-            // ReviewCount = $"{Reviews.Count} review{(Reviews.Count > 1 ? "s" : "")}";
+            var reviews = await _dbService.GetCaregiverReviewsAsync(_caregiverId);
 
-            await Task.CompletedTask;
+            foreach (var review in reviews)
+            {
+                Reviews.Add(review);
+            }
+
+            HasNoReviews = Reviews.Count == 0;
+            ReviewCount = $"{Reviews.Count} review{(Reviews.Count == 1 ? "" : "s")}";
         }
         catch (Exception ex)
         {
@@ -208,12 +218,37 @@ public partial class CaregiverDashboardViewModel : ObservableObject
     {
         try
         {
-            // TODO: Implement database call to fetch availability
-            // For now, using default times
-            DayStartTime = new TimeSpan(8, 0, 0);
-            DayEndTime = new TimeSpan(17, 0, 0);
+            // Availability is stored directly on CaregiverModel:
+            // - AvailableDays: comma-separated day indices, e.g. "0,2,4" (0=Sunday ... 6=Saturday)
+            // - AvailabilityStartTime / AvailabilityEndTime: daily working window
+            var profile = await _dbService.GetCaregiverProfileAsync(_caregiverId);
 
-            await Task.CompletedTask;
+            if (profile != null)
+            {
+                DayStartTime = profile.AvailabilityStartTime;
+                DayEndTime = profile.AvailabilityEndTime;
+
+                var selectedIndices = (profile.AvailableDays ?? string.Empty)
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(int.Parse)
+                    .ToHashSet();
+
+                for (int i = 0; i < AvailableDays.Count; i++)
+                {
+                    AvailableDays[i] = selectedIndices.Contains(i);
+                }
+            }
+            else
+            {
+                // No profile on record yet - use sensible defaults
+                DayStartTime = new TimeSpan(8, 0, 0);
+                DayEndTime = new TimeSpan(17, 0, 0);
+
+                for (int i = 0; i < AvailableDays.Count; i++)
+                {
+                    AvailableDays[i] = false;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -252,8 +287,9 @@ public partial class CaregiverDashboardViewModel : ObservableObject
                 return;
             }
 
-            // TODO: Implement database save for profile
-            // await _dbService.UpdateCaregiverProfileAsync(ProfileModel);
+            await _dbService.UpdateCaregiverProfileAsync(ProfileModel);
+
+            ProfileName = ProfileModel.FullName;
 
             await ShowAlert("Success", "? Profile saved successfully!");
         }
@@ -272,8 +308,12 @@ public partial class CaregiverDashboardViewModel : ObservableObject
                 .Select((selected, index) => selected ? index.ToString() : null)
                 .Where(x => x != null));
 
-            // TODO: Implement database save for availability
-            // await _dbService.UpdateCaregiverAvailabilityAsync(_caregiverId, selectedDays, DayStartTime, DayEndTime);
+            await _dbService.UpdateCaregiverAvailabilityAsync(_caregiverId, selectedDays, DayStartTime, DayEndTime);
+
+            // Keep the in-memory profile consistent with what was just saved
+            ProfileModel.AvailableDays = selectedDays;
+            ProfileModel.AvailabilityStartTime = DayStartTime;
+            ProfileModel.AvailabilityEndTime = DayEndTime;
 
             await ShowAlert("Success", "? Availability saved!");
             await LoadAvailability();
@@ -292,8 +332,7 @@ public partial class CaregiverDashboardViewModel : ObservableObject
             if (!int.TryParse(parameter?.ToString(), out int bookingId))
                 return;
 
-            // TODO: Implement database update for booking status
-            // await _dbService.UpdateBookingStatusAsync(bookingId, "Confirmed");
+            await _dbService.UpdateBookingStatusAsync(bookingId, "Confirmed");
 
             await ShowAlert("Success", "? Booking accepted!");
             await LoadBookings();
@@ -313,8 +352,7 @@ public partial class CaregiverDashboardViewModel : ObservableObject
             if (!int.TryParse(parameter?.ToString(), out int bookingId))
                 return;
 
-            // TODO: Implement database update for booking status
-            // await _dbService.UpdateBookingStatusAsync(bookingId, "Cancelled");
+            await _dbService.UpdateBookingStatusAsync(bookingId, "Cancelled");
 
             await ShowAlert("Success", "Booking declined.");
             await LoadBookings();
@@ -341,8 +379,7 @@ public partial class CaregiverDashboardViewModel : ObservableObject
             if (!confirmed)
                 return;
 
-            // TODO: Implement database update for booking status
-            // await _dbService.UpdateBookingStatusAsync(bookingId, "Completed");
+            await _dbService.UpdateBookingStatusAsync(bookingId, "Completed");
 
             await ShowAlert("Success", "? Booking marked as completed!");
             await LoadBookings();
