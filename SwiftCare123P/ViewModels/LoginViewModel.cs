@@ -8,6 +8,7 @@ public class LoginViewModel : BaseViewModel
 {
     private readonly INavigation _navigation;
     private readonly IDatabaseService _databaseService;
+    private Page? _page;
 
     private string _email = string.Empty;
     public string Email
@@ -34,9 +35,6 @@ public class LoginViewModel : BaseViewModel
     public ICommand BackToHomeCommand { get; }
     public ICommand GoToSignUpCommand { get; }
 
-    // databaseService defaults to the shared instance so pages don't need
-    // to pass it explicitly, but tests (or a future DI setup) can still
-    // inject a different one.
     public LoginViewModel(INavigation navigation, IDatabaseService? databaseService = null)
     {
         _navigation = navigation;
@@ -46,6 +44,8 @@ public class LoginViewModel : BaseViewModel
         BackToHomeCommand = new AsyncRelayCommand(async _ => await _navigation.PopAsync());
         GoToSignUpCommand = new AsyncRelayCommand(async _ => await _navigation.PushAsync(new SignUpPage()));
     }
+
+    public void SetPage(Page page) => _page = page;
 
     private async Task LogInAsync()
     {
@@ -64,6 +64,26 @@ public class LoginViewModel : BaseViewModel
         }
 
         ErrorMessage = string.Empty;
-        await Application.Current!.MainPage!.DisplayAlert("Log In", $"Welcome back, {user.FirstName}!", "OK");
+        
+        // Store user info for dashboard
+        await SecureStorage.Default.SetAsync("UserID", user.Id.ToString());
+        await SecureStorage.Default.SetAsync("UserName", $"{user.FirstName} {user.LastName}");
+        await SecureStorage.Default.SetAsync("UserRole", user.Role);
+
+        // Show alert and wait for it to complete
+        if (_page is not null)
+        {
+            await _page.DisplayAlert("Log In", $"Welcome back, {user.FirstName}!", "OK");
+        }
+
+        // Navigate to appropriate dashboard based on role
+        if (user.Role == "CareSeeker")
+        {
+            await _navigation.PushAsync(new UserDashboad());
+        }
+        else if (user.Role == "Caregiver")
+        {
+            await _navigation.PushAsync(new CaregiverDashboard());
+        }
     }
 }

@@ -4,9 +4,13 @@ namespace SwiftCare123P;
 
 public partial class SignUpPage : ContentPage
 {
+    private SignUpViewModel _viewModel;
+
     public SignUpPage()
     {
         InitializeComponent();
-        BindingContext = new SignUpViewModel(Navigation);
+        _viewModel = new SignUpViewModel(Navigation);
+        _viewModel.SetPage(this);
+        BindingContext = _viewModel;
     }
 }

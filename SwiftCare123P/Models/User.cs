@@ -29,4 +29,7 @@ public class User
 
     // "CareSeeker" or "Caregiver" — set from the sign-up role toggle.
     public string Role { get; set; } = string.Empty;
+
+    public string AccountStatus { get; set; } = string.Empty;
+    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 }

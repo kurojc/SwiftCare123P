@@ -1,6 +1,6 @@
 using System.Windows.Input;
-using SwiftCare123P.Models;
 using SwiftCare123P.MVVM;
+using SwiftCare123P.Models;
 using SwiftCare123P.Services;
 
 namespace SwiftCare123P.ViewModels;
@@ -9,6 +9,7 @@ public class SignUpViewModel : BaseViewModel
 {
     private readonly INavigation _navigation;
     private readonly IDatabaseService _databaseService;
+    private Page? _page;
 
     // ----- Role toggle -----
     private bool _isNeedCaregiverSelected = true;
@@ -81,8 +82,10 @@ public class SignUpViewModel : BaseViewModel
 
         CreateAccountCommand = new AsyncRelayCommand(async _ => await CreateAccountAsync());
         BackToHomeCommand = new AsyncRelayCommand(async _ => await _navigation.PopToRootAsync());
-        GoToLoginCommand = new AsyncRelayCommand(async _ => await _navigation.PushAsync(new LoginPage()));
+        GoToLoginCommand = new AsyncRelayCommand(async _ => await _navigation.PushAsync(new SignUpPage()));
     }
+
+    public void SetPage(Page page) => _page = page;
 
     private async Task CreateAccountAsync()
     {
@@ -105,8 +108,11 @@ public class SignUpViewModel : BaseViewModel
             return;
         }
 
+        var userRole = IsBeCaregiverSelected ? "Caregiver" : "CareSeeker";
+
         var newUser = new User
         {
+            Id = new Random().Next(1000, 9999),
             FirstName = FirstName.Trim(),
             LastName = LastName.Trim(),
             Email = Email.Trim(),
@@ -115,13 +121,32 @@ public class SignUpViewModel : BaseViewModel
             Gender = Gender,
             Address = Address.Trim(),
             Password = Password,
-            Role = IsBeCaregiverSelected ? "Caregiver" : "CareSeeker"
+            Role = userRole
         };
 
         await _databaseService.SaveUserAsync(newUser);
 
         ErrorMessage = string.Empty;
-        await Application.Current!.MainPage!.DisplayAlert("Account Created", $"Welcome, {newUser.FirstName}!", "OK");
-        await _navigation.PopToRootAsync();
+        
+        // Store user info for dashboard
+        await SecureStorage.Default.SetAsync("UserID", newUser.Id.ToString());
+        await SecureStorage.Default.SetAsync("UserName", $"{newUser.FirstName} {newUser.LastName}");
+        await SecureStorage.Default.SetAsync("UserRole", userRole);
+
+        // Show alert and wait for it to complete
+        if (_page is not null)
+        {
+            await _page.DisplayAlert("Account Created", $"Welcome, {newUser.FirstName}!", "OK");
+        }
+
+        // Navigate to appropriate dashboard based on role
+        if (userRole == "CareSeeker")
+        {
+            await _navigation.PushAsync(new UserDashboad());
+        }
+        else if (userRole == "Caregiver")
+        {
+            await _navigation.PushAsync(new CaregiverDashboard());
+        }
     }
 }

@@ -3,22 +3,20 @@ using System.Windows.Input;
 namespace SwiftCare123P.MVVM;
 
 /// <summary>
-/// A reusable ICommand implementation for synchronous actions.
-/// Lets XAML bind a button/tap directly to a ViewModel method via Command="{Binding SomeCommand}",
-/// instead of the View's code-behind handling a Clicked/Tapped event.
+/// A generic command that accepts an action to execute.
 /// </summary>
 public class RelayCommand : ICommand
 {
     private readonly Action<object?> _execute;
-    private readonly Func<object?, bool>? _canExecute;
+    private readonly Predicate<object?>? _canExecute;
 
-    public RelayCommand(Action<object?> execute, Func<object?, bool>? canExecute = null)
+    public event EventHandler? CanExecuteChanged;
+
+    public RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null)
     {
         _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         _canExecute = canExecute;
     }
-
-    public event EventHandler? CanExecuteChanged;
 
     public bool CanExecute(object? parameter) => _canExecute?.Invoke(parameter) ?? true;
 

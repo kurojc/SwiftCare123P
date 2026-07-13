@@ -66,14 +66,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="CareGiverDashboard.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="SignUpPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Models\" />
-	  <Folder Include="Services\" />
+	  <MauiXaml Update="UserDashboad.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

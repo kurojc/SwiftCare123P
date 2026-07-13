@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SwiftCare123P.UserDashboad"
+             Title="SwiftCare — User Dashboard"
+             Shell.BackButtonBehavior="Disabled"
+             BackgroundColor="#f4fbfc">
+
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
+        
+        <!-- Topbar -->
+        <Grid Grid.Row="0" 
+              Padding="16,12" 
+              BackgroundColor="White" 
+              ColumnDefinitions="*,Auto"
+              ColumnSpacing="8">
+            <Label Text="Browse Caregivers" 
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="#062035"
+                   x:Name="TopbarTitle"
+                   VerticalOptions="Center"
+                   VerticalTextAlignment="Center" />
+            
+            <HorizontalStackLayout Grid.Column="1" 
+                                   Spacing="8" 
+                                   VerticalOptions="Center">
+                <Label Text="Good day, " 
+                       FontSize="13" 
+                       TextColor="#4a7a92"
+                       VerticalOptions="Center"
+                       VerticalTextAlignment="Center" />
+                <Label x:Name="lblGreetName" 
+                       Text="User" 
+                       FontSize="13" 
+                       FontAttributes="Bold"
+                       TextColor="#006064"
+                       VerticalOptions="Center"
+                       VerticalTextAlignment="Center" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- Main Content with Bottom Tab Navigation -->
+        <Grid Grid.Row="1" RowDefinitions="*,56" ColumnDefinitions="*">
+            
+            <!-- Scrollable Content Area -->
+            <ScrollView Grid.Row="0" Padding="0">
+                <VerticalStackLayout Padding="16" Spacing="16">
+                    
+                    <!-- BROWSE CAREGIVERS PANEL -->
+                    <VerticalStackLayout x:Name="PanelBrowse" Spacing="16">
+                        
+                        <!-- Search Bar -->
+                        <Grid ColumnDefinitions="*,120" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <Border Grid.Row="0" 
+                                    Grid.Column="0"
+                                    Stroke="#e8f4f8"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    BackgroundColor="White"
+                                    Padding="12,10">
+                                <Entry x:Name="txtSearch" 
+                                       Placeholder="Search by name..."
+                                       FontSize="14" />
+                            </Border>
+                            
+                            <Picker Grid.Row="0"
+                                    Grid.Column="1"
+                                    x:Name="ddlService"
+                                    Title="Service"
+                                    BackgroundColor="White"
+                                    TextColor="#062035"
+                                    TitleColor="#4a7a92">
+                                <Picker.Items>
+                                    <x:String>All Services</x:String>
+                                    <x:String>Child Care</x:String>
+                                    <x:String>Elderly Care</x:String>
+                                    <x:String>Pet Care</x:String>
+                                    <x:String>House Sitting</x:String>
+                                    <x:String>Special Needs Care</x:String>
+                                </Picker.Items>
+                            </Picker>
+                            
+                            <Button Grid.Row="1"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    Text="Search"
+                                    BackgroundColor="#00838f"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    Padding="12"
+                                    Clicked="OnSearchClicked"
+                                    CornerRadius="10" />
+                        </Grid>
+
+                        <!-- Caregivers List -->
+                        <CollectionView x:Name="rptCaregivers" 
+                                       SelectionMode="None">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Stroke="#e8f4f8"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 14"
+                                            Padding="16"
+                                            Margin="0"
+                                            BackgroundColor="White"
+                                            Shadow="0,2,8,#00000010">
+                                        <Grid RowDefinitions="Auto,Auto" RowSpacing="12" ColumnDefinitions="*">
+                                            <!-- Top Row: Avatar, Info, Rate -->
+                                            <Grid Grid.Row="0" 
+                                                  ColumnDefinitions="60,*,Auto" 
+                                                  ColumnSpacing="14">
+                                                
+                                                <!-- Avatar -->
+                                                <Border Grid.Column="0"
+                                                        Stroke="#80deea"
+                                                        StrokeThickness="1"
+                                                        StrokeShape="RoundRectangle 10"
+                                                        Padding="4"
+                                                        BackgroundColor="#e0f7fa">
+                                                    <Label Text="👤" 
+                                                           FontSize="28"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center"
+                                                           HorizontalTextAlignment="Center"
+                                                           VerticalTextAlignment="Center" />
+                                                </Border>
+
+                                                <!-- Info -->
+                                                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                                    <Label Text="{Binding FullName}" 
+                                                           FontSize="18" 
+                                                           FontAttributes="Bold"
+                                                           TextColor="#0a2a4a" />
+                                                    <Label Text="{Binding Address}" 
+                                                           FontSize="13" 
+                                                           TextColor="#00838f"
+                                                           FontAttributes="Bold" />
+                                                    <Label Text="{Binding AvgRating, StringFormat='{0:F1} ★'}" 
+                                                           FontSize="14" 
+                                                           TextColor="#f4a535" />
+                                                </VerticalStackLayout>
+
+                                                <!-- Rate -->
+                                                <Label Grid.Column="2"
+                                                       Text="{Binding HourlyRateDisplay}" 
+                                                       FontSize="16" 
+                                                       FontAttributes="Bold"
+                                                       TextColor="#0a2a4a"
+                                                       VerticalOptions="Start"
+                                                       VerticalTextAlignment="Start"
+                                                       HorizontalOptions="End" />
+                                            </Grid>
+
+                                            <!-- Bottom Row: Bio and Contact Button -->
+                                            <Grid Grid.Row="1" 
+                                                  ColumnDefinitions="*,Auto" 
+                                                  ColumnSpacing="12">
+                                                
+                                                <Label Grid.Column="0"
+                                                       Text="{Binding ShortBio}" 
+                                                       FontSize="13" 
+                                                       TextColor="#4a7a92"
+                                                       FontAttributes="Italic"
+                                                       LineBreakMode="TailTruncation"
+                                                       VerticalOptions="Center" />
+                                                
+                                                <Button Grid.Column="1"
+                                                        Text="Contact"
+                                                        BackgroundColor="#0a2a4a"
+                                                        TextColor="White"
+                                                        FontAttributes="Bold"
+                                                        Padding="16,10"
+                                                        FontSize="12"
+                                                        Clicked="OnContactCaregiverClicked"
+                                                        CommandParameter="{Binding .}"
+                                                        CornerRadius="10" />
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <!-- No Caregivers Message -->
+                        <VerticalStackLayout x:Name="pnlNoCaregivers" 
+                                            IsVisible="False"
+                                            HorizontalOptions="Center"
+                                            Padding="20"
+                                            Spacing="12">
+                            <Label Text="🔍" 
+                                   FontSize="36" 
+                                   HorizontalTextAlignment="Center"
+                                   Opacity="0.5" />
+                            <Label Text="No caregivers found. Try a different search." 
+                                   FontSize="14" 
+                                   FontAttributes="Bold"
+                                   TextColor="#4a7a92"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- MY BOOKINGS PANEL -->
+                    <VerticalStackLayout x:Name="PanelBookings" IsVisible="False" Spacing="12">
+                        
+                        <!-- Filter Pills -->
+                        <ScrollView Orientation="Horizontal" Margin="0">
+                            <HorizontalStackLayout Spacing="8" Padding="0,4">
+                                <Button Text="All" 
+                                        BackgroundColor="#e0f7fa"
+                                        TextColor="#006064"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        Padding="16,6"
+                                        Clicked="OnFilterBookingsClicked"
+                                        CommandParameter="all"
+                                        CornerRadius="20" />
+                                <Button Text="Pending" 
+                                        BackgroundColor="White"
+                                        BorderColor="#e8f4f8"
+                                        BorderWidth="2"
+                                        TextColor="#4a7a92"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        Padding="16,6"
+                                        Clicked="OnFilterBookingsClicked"
+                                        CommandParameter="pending"
+                                        CornerRadius="20" />
+                                <Button Text="Confirmed" 
+                                        BackgroundColor="White"
+                                        BorderColor="#e8f4f8"
+                                        BorderWidth="2"
+                                        TextColor="#4a7a92"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        Padding="16,6"
+                                        Clicked="OnFilterBookingsClicked"
+                                        CommandParameter="confirmed"
+                                        CornerRadius="20" />
+                                <Button Text="Completed" 
+                                        BackgroundColor="White"
+                                        BorderColor="#e8f4f8"
+                                        BorderWidth="2"
+                                        TextColor="#4a7a92"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        Padding="16,6"
+                                        Clicked="OnFilterBookingsClicked"
+                                        CommandParameter="completed"
+                                        CornerRadius="20" />
+                                <Button Text="Cancelled" 
+                                        BackgroundColor="White"
+                                        BorderColor="#e8f4f8"
+                                        BorderWidth="2"
+                                        TextColor="#4a7a92"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        Padding="16,6"
+                                        Clicked="OnFilterBookingsClicked"
+                                        CommandParameter="cancelled"
+                                        CornerRadius="20" />
+                            </HorizontalStackLayout>
+                        </ScrollView>
+
+                        <!-- Bookings List -->
+                        <CollectionView x:Name="rptBookings">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Stroke="#e8f4f8"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 14"
+                                            Padding="16"
+                                            Margin="0"
+                                            BackgroundColor="White"
+                                            Shadow="0,2,8,#00000010">
+                                        <Grid RowDefinitions="Auto,Auto" RowSpacing="12" ColumnDefinitions="*,Auto">
+                                            <!-- Booking Info -->
+                                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6">
+                                                <Label Text="{Binding CaregiverName}" 
+                                                       FontSize="16" 
+                                                       FontAttributes="Bold"
+                                                       TextColor="#0a2a4a" />
+                                                <Label Text="{Binding ServiceName}" 
+                                                       FontSize="13" 
+                                                       TextColor="#4a7a92" />
+                                                <Label Text="{Binding DateTimeDisplay}" 
+                                                       FontSize="12" 
+                                                       TextColor="#4a7a92" />
+                                            </VerticalStackLayout>
+
+                                            <!-- Status Badge -->
+                                            <Border Grid.Row="0" 
+                                                    Grid.Column="1"
+                                                    StrokeShape="RoundRectangle 20"
+                                                    Padding="12,6"
+                                                    BackgroundColor="{Binding StatusColor}"
+                                                    Stroke="Transparent">
+                                                <Label Text="{Binding Status}" 
+                                                       FontSize="11" 
+                                                       FontAttributes="Bold"
+                                                       TextColor="{Binding StatusTextColor}"
+                                                       HorizontalOptions="Center"
+                                                       HorizontalTextAlignment="Center" />
+                                            </Border>
+
+                                            <!-- Review Button -->
+                                            <HorizontalStackLayout Grid.Row="1" 
+                                                                   Grid.Column="0" 
+                                                                   Grid.ColumnSpan="2"
+                                                                   Spacing="8">
+                                                <Button x:Name="ReviewButton"
+                                                        Text="⭐ Leave Review"
+                                                        BackgroundColor="#fff8e1"
+                                                        TextColor="#f57c00"
+                                                        FontAttributes="Bold"
+                                                        FontSize="12"
+                                                        Padding="12,6"
+                                                        IsVisible="{Binding CanReview}"
+                                                        Clicked="OnLeaveReviewClicked"
+                                                        CommandParameter="{Binding .}"
+                                                        CornerRadius="8" />
+                                                <Label Text="✓ Reviewed"
+                                                       FontSize="11"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#2e7d32"
+                                                       IsVisible="{Binding HasReview}"
+                                                       Padding="12,6"
+                                                       BackgroundColor="#e8f5e9"
+                                                       VerticalOptions="Center"
+                                                       VerticalTextAlignment="Center" />
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <!-- No Bookings Message -->
+                        <VerticalStackLayout x:Name="pnlNoBookings" 
+                                            HorizontalOptions="Center"
+                                            Padding="20"
+                                            Spacing="12">
+                            <Label Text="📭" 
+                                   FontSize="36" 
+                                   HorizontalTextAlignment="Center"
+                                   Opacity="0.5" />
+                            <Label Text="No bookings found." 
+                                   FontSize="14" 
+                                   FontAttributes="Bold"
+                                   TextColor="#4a7a92"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- MY PROFILE PANEL -->
+                    <VerticalStackLayout x:Name="PanelProfile" IsVisible="False" Spacing="16">
+                        
+                        <!-- Profile Hero -->
+                        <Border Stroke="Transparent"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="16"
+                                BackgroundColor="#0a2a4a">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                                <Border Grid.Column="0"
+                                        Stroke="#26c6da"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 50"
+                                        Padding="4"
+                                        BackgroundColor="#006064"
+                                        WidthRequest="80"
+                                        HeightRequest="80">
+                                    <Label Text="👤" 
+                                           FontSize="32"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center"
+                                           TextColor="White" />
+                                </Border>
+                                
+                                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                    <Label x:Name="lblProfileName" 
+                                           Text="Your Name" 
+                                           FontSize="18" 
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                    <Label Text="User · SwiftCare" 
+                                           FontSize="12" 
+                                           TextColor="#80deea" />
+                                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Label Text="●" 
+                                               FontSize="10" 
+                                               TextColor="#26c6da"
+                                               VerticalOptions="Center"
+                                               VerticalTextAlignment="Center" />
+                                        <Label Text="Active Account" 
+                                               FontSize="12" 
+                                               TextColor="#26c6da"
+                                               VerticalOptions="Center"
+                                               VerticalTextAlignment="Center" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+
+                        <!-- Personal Information Form -->
+                        <Border Stroke="#e8f4f8"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="16"
+                                BackgroundColor="White"
+                                Shadow="0,2,8,#00000010">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="Personal Information" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold"
+                                       TextColor="#0a2a4a" />
+
+                                <!-- First and Last Name Row -->
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                        <Label Text="First Name" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold"
+                                               TextColor="#1a4a62" />
+                                        <Border Stroke="#e8f4f8"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="#f8fdff"
+                                                Padding="12,10">
+                                            <Entry x:Name="txtProfileFirstName" 
+                                                   Placeholder="First Name"
+                                                   TextColor="#062035"
+                                                   FontSize="14" />
+                                        </Border>
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                        <Label Text="Last Name" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold"
+                                               TextColor="#1a4a62" />
+                                        <Border Stroke="#e8f4f8"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="#f8fdff"
+                                                Padding="12,10">
+                                            <Entry x:Name="txtProfileLastName" 
+                                                   Placeholder="Last Name"
+                                                   TextColor="#062035"
+                                                   FontSize="14" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <!-- Email and Contact Row -->
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                        <Label Text="Email Address" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold"
+                                               TextColor="#1a4a62" />
+                                        <Border Stroke="#e8f4f8"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="#f8fdff"
+                                                Padding="12,10">
+                                            <Entry x:Name="txtProfileEmail" 
+                                                   Placeholder="Email"
+                                                   Keyboard="Email"
+                                                   TextColor="#062035"
+                                                   FontSize="14" />
+                                        </Border>
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                        <Label Text="Contact Number" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold"
+                                               TextColor="#1a4a62" />
+                                        <Border Stroke="#e8f4f8"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="#f8fdff"
+                                                Padding="12,10">
+                                            <Entry x:Name="txtProfileContact" 
+                                                   Placeholder="Contact"
+                                                   TextColor="#062035"
+                                                   FontSize="14" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <!-- Gender and Birthdate Row -->
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                        <Label Text="Gender" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold"
+                                               TextColor="#1a4a62" />
+                                        <Border Stroke="#e8f4f8"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="#e8f5e9"
+                                                Padding="12,10">
+                                            <Entry x:Name="txtProfileGender" 
+                                                   Placeholder="Gender"
+                                                   IsReadOnly="True"
+                                                   TextColor="#062035"
+                                                   FontSize="14" />
+                                        </Border>
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                        <Label Text="Birthdate" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold"
+                                               TextColor="#1a4a62" />
+                                        <Border Stroke="#e8f4f8"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="#e8f5e9"
+                                                Padding="12,10">
+                                            <Entry x:Name="txtProfileBirthdate" 
+                                                   Placeholder="Birthdate"
+                                                   IsReadOnly="True"
+                                                   TextColor="#062035"
+                                                   FontSize="14" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <!-- Address -->
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="Address" 
+                                           FontSize="12" 
+                                           FontAttributes="Bold"
+                                           TextColor="#1a4a62" />
+                                    <Border Stroke="#e8f4f8"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 8"
+                                            BackgroundColor="#f8fdff"
+                                            Padding="12,10">
+                                        <Entry x:Name="txtProfileAddress" 
+                                               Placeholder="Address"
+                                               TextColor="#062035"
+                                               FontSize="14" />
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <!-- Save Button -->
+                                <Button Text="💾  Save Profile"
+                                        BackgroundColor="#00838f"
+                                        TextColor="White"
+                                        FontAttributes="Bold"
+                                        Padding="16,12"
+                                        FontSize="14"
+                                        Clicked="OnSaveProfileClicked"
+                                        CornerRadius="10" />
+
+                                <Label x:Name="lblProfileMsg" 
+                                       FontSize="12" 
+                                       FontAttributes="Bold"
+                                       TextColor="#00838f"
+                                       Margin="8,4" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- Bottom Tab Navigation -->
+            <Border Grid.Row="1" 
+                    Stroke="#e8f4f8"
+                    StrokeThickness="1"
+                    BackgroundColor="White">
+                <Grid ColumnDefinitions="*,*,*" BackgroundColor="White">
+                    
+                    <Button Grid.Column="0"
+                            Text="🔍 Browse"
+                            BackgroundColor="White"
+                            TextColor="#00838f"
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Clicked="OnTabBrowseClicked"
+                            x:Name="TabBrowse"
+                            CornerRadius="0" />
+                    
+                    <Button Grid.Column="1"
+                            Text="📅 Bookings"
+                            BackgroundColor="White"
+                            TextColor="#4a7a92"
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Clicked="OnTabBookingsClicked"
+                            x:Name="TabBookings"
+                            CornerRadius="0" />
+                    
+                    <Button Grid.Column="2"
+                            Text="👤 Profile"
+                            BackgroundColor="White"
+                            TextColor="#4a7a92"
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Clicked="OnTabProfileClicked"
+                            x:Name="TabProfile"
+                            CornerRadius="0" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+
+</ContentPage>
