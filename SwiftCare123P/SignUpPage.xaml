@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SwiftCare123P.SignUpPage"
+             BackgroundColor="{StaticResource SectionBg}"
+             NavigationPage.HasNavigationBar="False">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!--  ============  NAVBAR  ============  -->
+            <Grid BackgroundColor="{StaticResource NavyDark}"
+                  Padding="20,14"
+                  ColumnDefinitions="*,Auto">
+
+                <Border Grid.Column="0"
+                        HorizontalOptions="Start"
+                        StrokeShape="RoundRectangle 20"
+                        Stroke="{StaticResource White}"
+                        BackgroundColor="Transparent"
+                        Padding="16,8">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding BackToHomeCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="&#8592; Back to Home" TextColor="{StaticResource White}" FontSize="13" />
+                </Border>
+            </Grid>
+
+            <!--  ============  HERO / WELCOME PANEL  ============  -->
+            <Grid Padding="24,40">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource NavyDark}" Offset="0.0" />
+                        <GradientStop Color="#0D5C63" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+
+                <VerticalStackLayout Spacing="14">
+                    <Label FontSize="26" FontAttributes="Bold">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Join " TextColor="{StaticResource White}" />
+                                <Span Text="SwiftCare" TextColor="{StaticResource TealLight}" />
+                                <Span Text=" today" TextColor="{StaticResource White}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+
+                    <Label Text="Connect with trusted caregivers or start earning by offering your skills all in one platform built for Filipino families."
+                           TextColor="#D6E2F0" FontSize="15" />
+
+                    <HorizontalStackLayout Spacing="4" Margin="0,10,0,0">
+                        <Label Text="Already have an account?" TextColor="{StaticResource White}" FontSize="14" />
+                        <Label Text="Log In" TextColor="{StaticResource TealLight}" FontAttributes="Bold" FontSize="14">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToLoginCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!--  ============  SIGN UP CARD  ============  -->
+            <Border StrokeShape="RoundRectangle 18"
+                    BackgroundColor="{StaticResource White}"
+                    Margin="20,-30,20,30"
+                    Padding="24">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.15" Radius="20" Offset="0,8" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="16">
+
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Create your account" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                        <Label Text="Fill in your details to get started with SwiftCare." FontSize="13" TextColor="{StaticResource TextMuted}" />
+                    </VerticalStackLayout>
+
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="#D64545"
+                           FontSize="13"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+
+                    <!--  Role toggle  -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+
+                        <Border Grid.Column="0"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="12,16">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsNeedCaregiverSelected}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource Teal}" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource SectionBg}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsNeedCaregiverSelected}" Value="False">
+                                    <Setter Property="Stroke" Value="{StaticResource CardBorder}" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource White}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectNeedCaregiverCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label Text="&#128269;" FontSize="24" HorizontalOptions="Center" />
+                                <Label Text="I need a Caregiver" FontSize="13" FontAttributes="Bold"
+                                       TextColor="{StaticResource TextDark}" HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="12,16">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsBeCaregiverSelected}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource Teal}" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource SectionBg}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsBeCaregiverSelected}" Value="False">
+                                    <Setter Property="Stroke" Value="{StaticResource CardBorder}" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource White}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectBeCaregiverCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label Text="&#129309;" FontSize="24" HorizontalOptions="Center" />
+                                <Label Text="Be A Caregiver" FontSize="13" FontAttributes="Bold"
+                                       TextColor="{StaticResource TextDark}" HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!--  First / Last name  -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Label Text="First Name" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                            <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                                <Entry Text="{Binding FirstName}" Placeholder="e.g. Juan" FontSize="14" BackgroundColor="Transparent" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Last Name" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                            <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                                <Entry Text="{Binding LastName}" Placeholder="e.g. dela Cruz" FontSize="14" BackgroundColor="Transparent" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!--  Email  -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Email Address" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                        <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                            <Entry Text="{Binding Email}" Placeholder="you@email.com" Keyboard="Email" FontSize="14" BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Contact number  -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Contact Number" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                        <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                            <Entry Text="{Binding ContactNumber}" Placeholder="09XX XXX XXXX" Keyboard="Telephone" FontSize="14" BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Birthdate / Gender  -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Label Text="Birthdate" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                            <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                                <DatePicker Date="{Binding Birthdate}" FontSize="14" BackgroundColor="Transparent" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Gender" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                            <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                                <Picker Title="-- Select --" SelectedItem="{Binding Gender}" FontSize="14" BackgroundColor="Transparent">
+                                    <Picker.ItemsSource>
+                                        <x:Array Type="{x:Type x:String}">
+                                            <x:String>Male</x:String>
+                                            <x:String>Female</x:String>
+                                            <x:String>Other</x:String>
+                                            <x:String>Prefer not to say</x:String>
+                                        </x:Array>
+                                    </Picker.ItemsSource>
+                                </Picker>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!--  Address  -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Address" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                        <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                            <Entry Text="{Binding Address}" Placeholder="Street, Barangay, City, Province" FontSize="14" BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Password  -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Password" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                        <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                            <Entry Text="{Binding Password}" Placeholder="At least 8 characters" IsPassword="True" FontSize="14" BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Confirm Password  -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Confirm Password" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                        <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                            <Entry Text="{Binding ConfirmPassword}" Placeholder="Re-enter your password" IsPassword="True" FontSize="14" BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Border StrokeShape="RoundRectangle 10" Padding="0" HeightRequest="48" Margin="0,6,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="{StaticResource Teal}" Offset="0.0" />
+                                <GradientStop Color="#2E6FE8" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CreateAccountCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Create Account"
+                               TextColor="{StaticResource White}"
+                               FontAttributes="Bold"
+                               FontSize="15"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

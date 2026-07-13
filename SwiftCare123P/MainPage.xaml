@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SwiftCare123P.MainPage"
+             BackgroundColor="{StaticResource White}"
+             NavigationPage.HasNavigationBar="False">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!--  ============  NAVBAR  ============  -->
+            <Grid BackgroundColor="{StaticResource NavyDark}"
+                  Padding="20,14"
+                  ColumnDefinitions="*,Auto">
+
+                <!--  Logo  -->
+                <Image Grid.Column="0"
+                       Source="swiftcare_logo.png"
+                       HeightRequest="50"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Start"
+                       VerticalOptions="Center" />
+
+                <!--  Auth buttons  -->
+                <HorizontalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
+                    <Border StrokeShape="RoundRectangle 20"
+                            Stroke="{StaticResource White}"
+                            BackgroundColor="Transparent"
+                            Padding="18,8">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToLoginCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Log in" TextColor="{StaticResource White}" FontSize="14" />
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 20"
+                            BackgroundColor="{StaticResource Teal}"
+                            Padding="18,8">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToSignUpCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Sign Up" TextColor="{StaticResource White}" FontSize="14" FontAttributes="Bold" />
+                    </Border>
+                </HorizontalStackLayout>
+            </Grid>
+
+            <!--  ============  HERO  ============  -->
+            <Grid HeightRequest="480">
+                <!--  Background photo — add your own image named hero.jpg to Resources/Images  -->
+                <Image Source="hero.jpg" Aspect="AspectFill" />
+
+                <!--  Dark overlay for text legibility  -->
+                <BoxView BackgroundColor="{StaticResource NavyDarker}" Opacity="0.55" />
+
+                <VerticalStackLayout Padding="24,0" Spacing="18" VerticalOptions="Center" MaximumWidthRequest="480">
+
+                    <Border StrokeShape="RoundRectangle 20"
+                            BackgroundColor="#1F3A63"
+                            Padding="14,6"
+                            HorizontalOptions="Start">
+                        <HorizontalStackLayout Spacing="6">
+                            <BoxView WidthRequest="8" HeightRequest="8" CornerRadius="4" Color="{StaticResource TealLight}" />
+                            <Label Text="Verified caregivers, available now"
+                                   TextColor="{StaticResource White}" FontSize="12" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <Label FontSize="38" FontAttributes="Bold" LineBreakMode="WordWrap">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Connecting families with " TextColor="{StaticResource White}" />
+                                <Span Text="trusted" TextColor="{StaticResource TealLight}" />
+                                <Span Text=" local caregivers" TextColor="{StaticResource White}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+
+                    <Label Text="Find verified caregivers for childcare, elderly care, pet sitting, and more available on short notice, no long contracts required."
+                           TextColor="#D6E2F0" FontSize="15" />
+
+                    <Border StrokeShape="RoundRectangle 24"
+                            BackgroundColor="{StaticResource Teal}"
+                            Padding="24,12"
+                            HorizontalOptions="Start">
+                        <Label Text="Get Started" TextColor="{StaticResource White}" FontAttributes="Bold" />
+                    </Border>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!--  ============  HOW IT WORKS  ============  -->
+            <VerticalStackLayout Padding="24,50" Spacing="8" BackgroundColor="{StaticResource White}">
+                <Label Text="HOW IT WORKS" TextColor="{StaticResource Teal}" FontAttributes="Bold" FontSize="13" />
+                <Label Text="Care in 3 simple steps" TextColor="{StaticResource TextDark}" FontSize="28" FontAttributes="Bold" />
+                <Label Text="Getting the right caregiver for your needs has never been easier or faster."
+                       TextColor="{StaticResource TextMuted}" FontSize="15" Margin="0,0,0,20" />
+
+                <VerticalStackLayout Spacing="16">
+                    <Border StrokeShape="RoundRectangle 14" Stroke="{StaticResource CardBorder}" Padding="20">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="01" TextColor="{StaticResource Teal}" FontSize="26" FontAttributes="Bold" />
+                            <Label Text="Create Your Account" TextColor="{StaticResource TextDark}" FontSize="18" FontAttributes="Bold" />
+                            <Label Text="Sign up in minutes and tell us what kind of care you need childcare, elderly support, pet care, and more."
+                                   TextColor="{StaticResource TextMuted}" FontSize="14" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border StrokeShape="RoundRectangle 14" Stroke="{StaticResource CardBorder}" Padding="20">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="02" TextColor="{StaticResource Teal}" FontSize="26" FontAttributes="Bold" />
+                            <Label Text="Browse &amp; Choose" TextColor="{StaticResource TextDark}" FontSize="18" FontAttributes="Bold" />
+                            <Label Text="View detailed caregiver profiles with ratings, reviews, availability, and hourly rates. Pick the perfect fit."
+                                   TextColor="{StaticResource TextMuted}" FontSize="14" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border StrokeShape="RoundRectangle 14" Stroke="{StaticResource CardBorder}" Padding="20">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="03" TextColor="{StaticResource Teal}" FontSize="26" FontAttributes="Bold" />
+                            <Label Text="Book Instantly" TextColor="{StaticResource TextDark}" FontSize="18" FontAttributes="Bold" />
+                            <Label Text="Confirm your booking in seconds. Your caregiver arrives ready to help whether it's today or next week."
+                                   TextColor="{StaticResource TextMuted}" FontSize="14" />
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <!--  ============  SERVICES  ============  -->
+            <VerticalStackLayout Padding="24,20,24,50" Spacing="8" BackgroundColor="{StaticResource White}">
+                <Label Text="OUR SERVICES" TextColor="{StaticResource Teal}" FontAttributes="Bold" FontSize="13" />
+                <Label Text="Every kind of care, all in one place" TextColor="{StaticResource TextDark}" FontSize="26" FontAttributes="Bold" />
+                <Label Text="From urgent babysitting to long-term pet sitting, SwiftCare has caregivers ready for every situation."
+                       TextColor="{StaticResource TextMuted}" FontSize="15" Margin="0,0,0,20" />
+
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="14" RowSpacing="14">
+
+                    <Border Grid.Row="0" Grid.Column="0" StrokeShape="RoundRectangle 14" Stroke="{StaticResource CardBorder}" Padding="16">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="&#128118;" FontSize="34" HorizontalOptions="Center" />
+                            <Label Text="Child Care" FontAttributes="Bold" TextColor="{StaticResource TextDark}" HorizontalOptions="Center" />
+                            <Label Text="Safe, nurturing babysitters and nannies available on short notice."
+                                   FontSize="12" TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Row="0" Grid.Column="1" StrokeShape="RoundRectangle 14" Stroke="{StaticResource CardBorder}" Padding="16">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="&#128116;" FontSize="34" HorizontalOptions="Center" />
+                            <Label Text="Elderly Care" FontAttributes="Bold" TextColor="{StaticResource TextDark}" HorizontalOptions="Center" />
+                            <Label Text="Compassionate companions and assistants for senior family members."
+                                   FontSize="12" TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle 14" Stroke="{StaticResource CardBorder}" Padding="16">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="&#128054;" FontSize="34" HorizontalOptions="Center" />
+                            <Label Text="Pet Care" FontAttributes="Bold" TextColor="{StaticResource TextDark}" HorizontalOptions="Center" />
+                            <Label Text="Loving pet sitters and dog walkers who treat your pets like family."
+                                   FontSize="12" TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Row="1" Grid.Column="1" StrokeShape="RoundRectangle 14" Stroke="{StaticResource CardBorder}" Padding="16">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="&#127968;" FontSize="34" HorizontalOptions="Center" />
+                            <Label Text="House Sitting" FontAttributes="Bold" TextColor="{StaticResource TextDark}" HorizontalOptions="Center" />
+                            <Label Text="Trusted house sitters to keep your home safe while you're away."
+                                   FontSize="12" TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" StrokeShape="RoundRectangle 14" Stroke="{StaticResource CardBorder}" Padding="16">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="&#9855;" FontSize="34" HorizontalOptions="Center" />
+                            <Label Text="Special Needs Care" FontAttributes="Bold" TextColor="{StaticResource TextDark}" HorizontalOptions="Center" />
+                            <Label Text="Trained caregivers who support individuals with disabilities with dignity."
+                                   FontSize="12" TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+
+            <!--  ============  TESTIMONIALS  ============  -->
+            <VerticalStackLayout Padding="24,50" Spacing="8" BackgroundColor="{StaticResource SectionBg}">
+                <Label Text="TESTIMONIALS" TextColor="{StaticResource Teal}" FontAttributes="Bold" FontSize="13" />
+                <Label Text="Families love SwiftCare" TextColor="{StaticResource TextDark}" FontSize="26" FontAttributes="Bold" />
+                <Label Text="Real stories from real families who found the care they needed fast."
+                       TextColor="{StaticResource TextMuted}" FontSize="15" Margin="0,0,0,20" />
+
+                <VerticalStackLayout Spacing="16">
+
+                    <Border StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource White}" Padding="18">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="&#9733;&#9733;&#9733;&#9733;&#9733;" TextColor="{StaticResource StarGold}" FontSize="14" />
+                            <Label Text="I needed a babysitter urgently for a work meeting and found Maria through SwiftCare within 20 minutes. She was wonderful with my kids!"
+                                   FontAttributes="Italic" TextColor="{StaticResource TextDark}" FontSize="14" />
+                            <HorizontalStackLayout Spacing="10">
+                                <Border StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource SectionBg}" WidthRequest="32" HeightRequest="32">
+                                    <Label Text="&#128100;" FontSize="14" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Spacing="0">
+                                    <Label Text="Steven Clarks" FontAttributes="Bold" FontSize="13" TextColor="{StaticResource TextDark}" />
+                                    <Label Text="Parent, Binan City" FontSize="12" TextColor="{StaticResource TextMuted}" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource White}" Padding="18">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="&#9733;&#9733;&#9733;&#9733;&#9733;" TextColor="{StaticResource StarGold}" FontSize="14" />
+                            <Label Text="SwiftCare made it easy to find a trustworthy person for my aging mother. The verification process gave me complete peace of mind."
+                                   FontAttributes="Italic" TextColor="{StaticResource TextDark}" FontSize="14" />
+                            <HorizontalStackLayout Spacing="10">
+                                <Border StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource SectionBg}" WidthRequest="32" HeightRequest="32">
+                                    <Label Text="&#128100;" FontSize="14" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Spacing="0">
+                                    <Label Text="Vince Cervantes" FontAttributes="Bold" FontSize="13" TextColor="{StaticResource TextDark}" />
+                                    <Label Text="Son &amp; Caregiver, Kanto City" FontSize="12" TextColor="{StaticResource TextMuted}" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border StrokeShape="RoundRectangle 14" BackgroundColor="{StaticResource White}" Padding="18">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="&#9733;&#9733;&#9733;&#9733;&#9733;" TextColor="{StaticResource StarGold}" FontSize="14" />
+                            <Label Text="As a caregiver, SwiftCare gave me the flexibility to earn extra income on my own schedule. The platform is easy and clients are respectful."
+                                   FontAttributes="Italic" TextColor="{StaticResource TextDark}" FontSize="14" />
+                            <HorizontalStackLayout Spacing="10">
+                                <Border StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource SectionBg}" WidthRequest="32" HeightRequest="32">
+                                    <Label Text="&#128100;" FontSize="14" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Spacing="0">
+                                    <Label Text="Jc Raymundo" FontAttributes="Bold" FontSize="13" TextColor="{StaticResource TextDark}" />
+                                    <Label Text="Caregiver, Sulok City" FontSize="12" TextColor="{StaticResource TextMuted}" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

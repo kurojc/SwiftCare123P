@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SwiftCare123P.LoginPage"
+             BackgroundColor="{StaticResource SectionBg}"
+             NavigationPage.HasNavigationBar="False">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!--  ============  NAVBAR  ============  -->
+            <Grid BackgroundColor="{StaticResource NavyDark}"
+                  Padding="20,14"
+                  ColumnDefinitions="*,Auto">
+
+                <Border Grid.Column="0"
+                        HorizontalOptions="Start"
+                        StrokeShape="RoundRectangle 20"
+                        Stroke="{StaticResource White}"
+                        BackgroundColor="Transparent"
+                        Padding="16,8">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding BackToHomeCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="&#8592; Back to Home" TextColor="{StaticResource White}" FontSize="13" />
+                </Border>
+            </Grid>
+
+            <!--  ============  HERO / WELCOME PANEL  ============  -->
+            <Grid Padding="24,40" BackgroundColor="{StaticResource NavyDark}">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource NavyDark}" Offset="0.0" />
+                        <GradientStop Color="#0D5C63" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+
+                <VerticalStackLayout Spacing="14">
+                    <Label FontSize="26" FontAttributes="Bold">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Welcome back to " TextColor="{StaticResource White}" />
+                                <Span Text="SwiftCare" TextColor="{StaticResource TealLight}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+
+                    <Label Text="Log in to connect with verified caregivers or manage your bookings all in one place."
+                           TextColor="#D6E2F0" FontSize="15" />
+
+                    <HorizontalStackLayout Spacing="4" Margin="0,10,0,0">
+                        <Label Text="Don't have an account?" TextColor="{StaticResource White}" FontSize="14" />
+                        <Label Text="Sign Up" TextColor="{StaticResource TealLight}" FontAttributes="Bold" FontSize="14">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToSignUpCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!--  ============  LOGIN CARD  ============  -->
+            <Border StrokeShape="RoundRectangle 18"
+                    BackgroundColor="{StaticResource White}"
+                    Margin="20,-30,20,30"
+                    Padding="24">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.15" Radius="20" Offset="0,8" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="16">
+
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Log in to your account" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                        <Label Text="Enter your credentials to continue." FontSize="13" TextColor="{StaticResource TextMuted}" />
+                    </VerticalStackLayout>
+
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="#D64545"
+                           FontSize="13"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Email Address" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                        <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                            <Entry Text="{Binding Email}" Placeholder="you@email.com" Keyboard="Email" FontSize="14" BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Password" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
+                        <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource CardBorder}" Padding="12,10">
+                            <Entry Text="{Binding Password}" Placeholder="Enter your password" IsPassword="True" FontSize="14" BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Label Text="Forgot password?"
+                           TextColor="{StaticResource Teal}"
+                           FontSize="13"
+                           HorizontalOptions="End" />
+
+                    <Border StrokeShape="RoundRectangle 10" Padding="0" HeightRequest="48">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="{StaticResource Teal}" Offset="0.0" />
+                                <GradientStop Color="#2E6FE8" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding LogInCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Log In"
+                               TextColor="{StaticResource White}"
+                               FontAttributes="Bold"
+                               FontSize="15"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
