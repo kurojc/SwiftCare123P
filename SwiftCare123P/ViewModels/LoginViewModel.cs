@@ -79,7 +79,7 @@ public class LoginViewModel : BaseViewModel
         // Navigate to appropriate dashboard based on role
         if (user.Role == "CareSeeker")
         {
-            await _navigation.PushAsync(new UserDashboad());
+            await _navigation.PushAsync(new UserDashboard());
         }
         else if (user.Role == "Caregiver")
         {

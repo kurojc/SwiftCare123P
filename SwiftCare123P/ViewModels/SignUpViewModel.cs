@@ -142,7 +142,7 @@ public class SignUpViewModel : BaseViewModel
         // Navigate to appropriate dashboard based on role
         if (userRole == "CareSeeker")
         {
-            await _navigation.PushAsync(new UserDashboad());
+            await _navigation.PushAsync(new UserDashboard());
         }
         else if (userRole == "Caregiver")
         {

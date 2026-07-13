@@ -21,7 +21,4 @@ public partial class CaregiverDashboard : ContentPage
         base.OnAppearing();
         await _viewModel.LoadDataCommand.ExecuteAsync(null);
     }
-    <ItemGroup>
-        <PackageReference Include = "CommunityToolkit.Mvvm" Version="8.2.2" />
-    </ItemGroup>
 }

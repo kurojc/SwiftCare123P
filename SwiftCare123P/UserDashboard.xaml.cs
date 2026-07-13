@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace SwiftCare123P;
 
-public partial class UserDashboad : ContentPage
+public partial class UserDashboard : ContentPage
 {
     private readonly IDatabaseService _dbService;
     private ObservableCollection<CaregiverModel> _caregivers;
@@ -13,7 +13,7 @@ public partial class UserDashboad : ContentPage
     private string _currentFilter = "all";
     private int _userId;
 
-    public UserDashboad()
+    public UserDashboard()
     {
         InitializeComponent();
         _dbService = AppServices.Database;

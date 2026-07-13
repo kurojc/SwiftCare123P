@@ -30,7 +30,7 @@ public partial class CaregiverDashboardViewModel : ObservableObject
     private string completedBookings = "0";
 
     [ObservableProperty]
-    private string averageRating = "—";
+    private string averageRating = "ï¿½";
 
     [ObservableProperty]
     private bool isOverviewPanelVisible = true;
@@ -143,7 +143,7 @@ public partial class CaregiverDashboardViewModel : ObservableObject
             TotalBookings = "0";
             PendingBookings = "0";
             CompletedBookings = "0";
-            AverageRating = "—";
+            AverageRating = "ï¿½";
         }
         catch (Exception ex)
         {

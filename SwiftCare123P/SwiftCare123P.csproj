@@ -72,9 +72,19 @@
 	  <MauiXaml Update="SignUpPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="UserDashboad.xaml">
+	  <MauiXaml Update="UserDashboard.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="UserDashboard.xaml.cs">
+	    <DependentUpon>UserDashboard.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 </Project>
