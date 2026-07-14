@@ -55,6 +55,31 @@ public class DatabaseService : IDatabaseService
     public async Task<bool> EmailExistsAsync(string email)
         => await GetUserByEmailAsync(email) is not null;
 
+    public async Task<bool> CreateReviewAsync(int bookingId, int userId, int rating, string comment)
+    {
+        var db = await GetDbAsync();
+
+        var booking = await db.Table<BookingEntity>().Where(b => b.BookingID == bookingId).FirstOrDefaultAsync();
+        if (booking is null || booking.UserID != userId)
+            return false; // not this user's booking to review
+
+        var alreadyReviewed = await db.Table<ReviewEntity>().Where(r => r.BookingID == bookingId).CountAsync() > 0;
+        if (alreadyReviewed)
+            return false;
+
+        await db.InsertAsync(new ReviewEntity
+        {
+            BookingID = bookingId,
+            UserID = userId,
+            CaregiverID = booking.CaregiverID,
+            Rating = Math.Clamp(rating, 1, 5),
+            Comment = comment ?? string.Empty,
+            ReviewDate = DateTime.UtcNow
+        });
+
+        return true;
+    }
+
     public async Task SaveUserAsync(User user)
     {
         var db = await GetDbAsync();
@@ -223,13 +248,10 @@ public class DatabaseService : IDatabaseService
         await db.UpdateAsync(booking);
     }
 
-    public async Task<bool> CreateBookingAsync(int userId, int caregiverId, int serviceId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
+    public async Task<bool> CreateBookingAsync(int userId, int caregiverId, int serviceId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime, decimal totalPrice)
     {
         var db = await GetDbAsync();
 
-        // caregiverId here is the caregiver's UserID (same convention used throughout this
-        // service); BookingEntity.CaregiverID actually points at CaregiverProfileEntity's own
-        // primary key, so resolve that first — same lookup GetCaregiverBookingsAsync uses.
         var profile = await db.Table<CaregiverProfileEntity>().Where(c => c.UserID == caregiverId).FirstOrDefaultAsync();
         if (profile is null) return false;
 
@@ -241,7 +263,8 @@ public class DatabaseService : IDatabaseService
             BookingDate = bookingDate.Date,
             StartTime = startTime.ToString(@"hh\:mm"),
             EndTime = endTime.ToString(@"hh\:mm"),
-            Status = BookingStatus.Pending
+            Status = BookingStatus.Pending,
+            TotalPrice = totalPrice
         };
 
         await db.InsertAsync(booking);
@@ -359,11 +382,13 @@ public class DatabaseService : IDatabaseService
             StartTime = start,
             EndTime = end,
             Status = b.Status,
+            TotalPrice = b.TotalPrice,
             HasReview = hasReview,
             DateTimeDisplay = $"{b.BookingDate:MMM dd, yyyy}\n{start:hh\\:mm} – {end:hh\\:mm}",
             StatusColor = bg,
             StatusTextColor = fg,
             CanReview = !forCaregiverView && b.Status == BookingStatus.Completed && !hasReview,
+
 
             // Caregiver-side booking actions: only ever offered to the caregiver's own view,
             // and only for the status they're actually valid from.

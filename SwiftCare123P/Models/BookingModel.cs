@@ -27,4 +27,6 @@ public class BookingModel
     public bool CanAccept { get; set; }
     public bool CanDecline { get; set; }
     public bool CanComplete { get; set; }
+
+    public decimal TotalPrice { get; set; }
 }

@@ -274,6 +274,7 @@
                                                         <Label Text="{Binding CaregiverName}" FontSize="14" FontAttributes="Bold" TextColor="#062035"/>
                                                         <Label Text="{Binding ServiceName}" FontSize="12" TextColor="#4a7a92"/>
                                                         <Label Text="{Binding DateTimeDisplay}" FontSize="11" TextColor="#4a7a92"/>
+                                                        <Label Text="{Binding TotalPrice, StringFormat='₱{0:0.00}'}" FontSize="13" FontAttributes="Bold" TextColor="#006064"/>
                                                     </VerticalStackLayout>
                                                     <Border Grid.Column="1"
                                                             StrokeShape="RoundRectangle(20)"
@@ -343,43 +344,43 @@
                                 <VerticalStackLayout Grid.Column="0" Spacing="4">
                                     <Label Text="Mon" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
                                     <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
-                                        <CheckBox IsChecked="{Binding AvailableDays[0]}" Color="#00838f" HorizontalOptions="Center"/>
+                                        <CheckBox IsChecked="{Binding IsMondaySelected}" Color="#00838f" HorizontalOptions="Center"/>
                                     </Border>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="1" Spacing="4">
                                     <Label Text="Tue" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
                                     <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
-                                        <CheckBox IsChecked="{Binding AvailableDays[1]}" Color="#00838f" HorizontalOptions="Center"/>
+                                        <CheckBox IsChecked="{Binding IsTuesdaySelected}" Color="#00838f" HorizontalOptions="Center"/>
                                     </Border>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="2" Spacing="4">
                                     <Label Text="Wed" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
                                     <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
-                                        <CheckBox IsChecked="{Binding AvailableDays[2]}" Color="#00838f" HorizontalOptions="Center"/>
+                                        <CheckBox IsChecked="{Binding IsWednesdaySelected}" Color="#00838f" HorizontalOptions="Center"/>
                                     </Border>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="3" Spacing="4">
                                     <Label Text="Thu" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
                                     <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
-                                        <CheckBox IsChecked="{Binding AvailableDays[3]}" Color="#00838f" HorizontalOptions="Center"/>
+                                        <CheckBox IsChecked="{Binding IsThursdaySelected}" Color="#00838f" HorizontalOptions="Center"/>
                                     </Border>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="4" Spacing="4">
                                     <Label Text="Fri" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
                                     <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
-                                        <CheckBox IsChecked="{Binding AvailableDays[4]}" Color="#00838f" HorizontalOptions="Center"/>
+                                        <CheckBox IsChecked="{Binding IsFridaySelected}" Color="#00838f" HorizontalOptions="Center"/>
                                     </Border>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="5" Spacing="4">
                                     <Label Text="Sat" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
                                     <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
-                                        <CheckBox IsChecked="{Binding AvailableDays[5]}" Color="#00838f" HorizontalOptions="Center"/>
+                                        <CheckBox IsChecked="{Binding IsSaturdaySelected}" Color="#00838f" HorizontalOptions="Center"/>
                                     </Border>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="6" Spacing="4">
                                     <Label Text="Sun" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
                                     <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
-                                        <CheckBox IsChecked="{Binding AvailableDays[6]}" Color="#00838f" HorizontalOptions="Center"/>
+                                        <CheckBox IsChecked="{Binding IsSundaySelected}" Color="#00838f" HorizontalOptions="Center"/>
                                     </Border>
                                 </VerticalStackLayout>
                             </Grid>

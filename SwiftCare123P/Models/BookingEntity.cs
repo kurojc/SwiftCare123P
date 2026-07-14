@@ -17,4 +17,6 @@ public class BookingEntity
     public string EndTime { get; set; } = string.Empty;   // "HH:mm"
 
     public string Status { get; set; } = BookingStatus.Pending;
+
+    public decimal TotalPrice { get; set; }
 }

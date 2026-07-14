@@ -77,7 +77,13 @@ public partial class CaregiverDashboardViewModel : ObservableObject
     public ObservableCollection<ReviewModel> Reviews { get; } = [];
 
     // Fixed-length 7-slot toggle grid for the Availability panel, in DayOfWeekHelper's Mon=0..Sun=6 order.
-    public ObservableCollection<bool> AvailableDays { get; } = new([false, false, false, false, false, false, false]);
+    [ObservableProperty] private bool isMondaySelected;
+    [ObservableProperty] private bool isTuesdaySelected;
+    [ObservableProperty] private bool isWednesdaySelected;
+    [ObservableProperty] private bool isThursdaySelected;
+    [ObservableProperty] private bool isFridaySelected;
+    [ObservableProperty] private bool isSaturdaySelected;
+    [ObservableProperty] private bool isSundaySelected;
 
     // Loaded from the database rather than hardcoded, so it always matches whatever
     // services actually exist there instead of a hand-typed, easily-out-of-sync list.
@@ -261,9 +267,6 @@ public partial class CaregiverDashboardViewModel : ObservableObject
     {
         try
         {
-            // Availability is stored directly on CaregiverModel:
-            // - AvailableDays: comma-separated day indices in DayOfWeekHelper's app order (0=Monday ... 6=Sunday)
-            // - AvailabilityStartTime / AvailabilityEndTime: daily working window
             var profile = await _dbService.GetCaregiverProfileAsync(_caregiverId);
 
             if (profile != null)
@@ -273,21 +276,21 @@ public partial class CaregiverDashboardViewModel : ObservableObject
 
                 var selectedIndices = DayOfWeekHelper.ParseAvailableDays(profile.AvailableDays);
 
-                for (int i = 0; i < AvailableDays.Count; i++)
-                {
-                    AvailableDays[i] = selectedIndices.Contains(i);
-                }
+                IsMondaySelected = selectedIndices.Contains(0);
+                IsTuesdaySelected = selectedIndices.Contains(1);
+                IsWednesdaySelected = selectedIndices.Contains(2);
+                IsThursdaySelected = selectedIndices.Contains(3);
+                IsFridaySelected = selectedIndices.Contains(4);
+                IsSaturdaySelected = selectedIndices.Contains(5);
+                IsSundaySelected = selectedIndices.Contains(6);
             }
             else
             {
-                // No profile on record yet - use sensible defaults
                 DayStartTime = new TimeSpan(8, 0, 0);
                 DayEndTime = new TimeSpan(17, 0, 0);
 
-                for (int i = 0; i < AvailableDays.Count; i++)
-                {
-                    AvailableDays[i] = false;
-                }
+                IsMondaySelected = IsTuesdaySelected = IsWednesdaySelected = IsThursdaySelected =
+                    IsFridaySelected = IsSaturdaySelected = IsSundaySelected = false;
             }
         }
         catch (Exception ex)
@@ -348,7 +351,9 @@ public partial class CaregiverDashboardViewModel : ObservableObject
     {
         try
         {
-            var selectedDays = DayOfWeekHelper.ToCsv(AvailableDays);
+            var selectedDays = DayOfWeekHelper.ToCsv(new[]{
+            IsMondaySelected, IsTuesdaySelected, IsWednesdaySelected, IsThursdaySelected,
+            IsFridaySelected, IsSaturdaySelected, IsSundaySelected});
 
             await _dbService.UpdateCaregiverAvailabilityAsync(_caregiverId, selectedDays, DayStartTime, DayEndTime);
 

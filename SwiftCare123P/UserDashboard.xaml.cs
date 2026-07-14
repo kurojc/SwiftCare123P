@@ -22,6 +22,7 @@ public partial class UserDashboard : ContentPage
         _bookings = new ObservableCollection<BookingModel>();
         rptCaregivers.ItemsSource = _caregivers;
         rptBookings.ItemsSource = _bookings;
+        NavigationPage.SetHasNavigationBar(this, false);
     }
 
     protected override async void OnAppearing()
@@ -195,9 +196,34 @@ public partial class UserDashboard : ContentPage
 
     private async void OnLeaveReviewClicked(object sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is BookingModel booking)
+        if (sender is not Button button || button.CommandParameter is not BookingModel booking)
+            return;
+
+        var ratingChoice = await DisplayActionSheet("Rate your experience", "Cancel", null,
+            "⭐ 1", "⭐⭐ 2", "⭐⭐⭐ 3", "⭐⭐⭐⭐ 4", "⭐⭐⭐⭐⭐ 5");
+
+        if (string.IsNullOrEmpty(ratingChoice) || ratingChoice == "Cancel")
+            return;
+
+        int rating = int.Parse(ratingChoice.Split(' ')[^1]);
+
+        var comment = await DisplayPromptAsync(
+            "Leave a Review",
+            "Tell us about your experience (optional):",
+            accept: "Submit",
+            cancel: "Skip",
+            maxLength: 200) ?? string.Empty;
+
+        var success = await _dbService.CreateReviewAsync(booking.BookingID, _userId, rating, comment);
+
+        if (success)
         {
-            await DisplayAlert("Review", $"Review for booking {booking.BookingID}", "OK");
+            await DisplayAlert("Thank You!", "Your review has been submitted.", "OK");
+            await LoadBookings(); // refresh so this booking now shows "✓ Reviewed"
+        }
+        else
+        {
+            await DisplayAlert("Error", "Could not submit your review. It may have already been reviewed.", "OK");
         }
     }
 

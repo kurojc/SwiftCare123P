@@ -30,11 +30,12 @@ public interface IDatabaseService
     // caregiverId is the caregiver's UserID (same convention as GetCaregiverProfileAsync above),
     // NOT CaregiverProfiles.CaregiverID — the implementation resolves that internally.
     // Returns false if no caregiver profile exists for that user.
-    Task<bool> CreateBookingAsync(int userId, int caregiverId, int serviceId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime);
+    Task<bool> CreateBookingAsync(int userId, int caregiverId, int serviceId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime, decimal totalPrice);
 
     // --- Services ---
     Task<List<ServiceModel>> GetServicesAsync();
 
     // --- Reviews ---
     Task<List<ReviewModel>> GetCaregiverReviewsAsync(int caregiverId);
+    Task<bool> CreateReviewAsync(int bookingId, int userId, int rating, string comment);
 }

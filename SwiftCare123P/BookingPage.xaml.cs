@@ -18,6 +18,7 @@ public partial class BookingPage : ContentPage
 
     private DateTime _calendarMonthAnchor = DateTime.Today;
     private DateTime? _selectedDate;
+    private const decimal BookingFee = 30m;
 
     public BookingPage(CaregiverModel caregiver)
     {
@@ -36,8 +37,6 @@ public partial class BookingPage : ContentPage
             ? $"⭐ {caregiver.AvgRating:0.0} rating"
             : "⭐ New caregiver";
 
-        // Default the time pickers to the caregiver's own working window rather than
-        // an arbitrary fixed 9-to-5 that might fall entirely outside their availability.
         tpStartTime.Time = caregiver.AvailabilityStartTime;
         tpEndTime.Time = caregiver.AvailabilityEndTime;
 
@@ -200,6 +199,7 @@ public partial class BookingPage : ContentPage
     {
         lblSummaryDate.Text = _selectedDate?.ToString("MMM dd, yyyy (ddd)") ?? "Not selected";
         lblSummaryRate.Text = $"₱{_caregiver.HourlyRate:0.00}/hour";
+        lblSummaryFee.Text = $"₱{BookingFee:0.00}";
 
         var start = tpStartTime.Time;
         var end = tpEndTime.Time;
@@ -215,7 +215,7 @@ public partial class BookingPage : ContentPage
 
         lblSummaryDuration.Text = $"{duration.TotalHours:0.##} hour(s)";
 
-        var total = (decimal)duration.TotalHours * _caregiver.HourlyRate;
+        var total = (decimal)duration.TotalHours * _caregiver.HourlyRate + BookingFee;
         lblSummaryTotal.Text = $"₱{total:0.00}";
     }
 
@@ -273,13 +273,16 @@ public partial class BookingPage : ContentPage
 
         try
         {
+            var total = (decimal)(endTime - startTime).TotalHours * _caregiver.HourlyRate + BookingFee;
+
             bool success = await _dbService.CreateBookingAsync(
                 _userId,
                 _caregiver.CaregiverID,
                 selectedService.ServiceID,
                 bookingDate,
                 startTime,
-                endTime);
+                endTime,
+                total);
 
             if (!success)
             {
@@ -287,7 +290,6 @@ public partial class BookingPage : ContentPage
                 return;
             }
 
-            var total = (decimal)(endTime - startTime).TotalHours * _caregiver.HourlyRate;
             await DisplayAlert(
                 "Booking Requested",
                 $"Your booking request with {_caregiver.FullName} for {bookingDate:MMM dd, yyyy} ({startTime:hh\\:mm}–{endTime:hh\\:mm}) has been sent!\nTotal: ₱{total:0.00}",
