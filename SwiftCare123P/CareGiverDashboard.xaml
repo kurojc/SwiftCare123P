@@ -34,7 +34,7 @@
         <!-- Tab Navigation -->
         <!-- NEW -->
         <FlexLayout Grid.Row="1" Wrap="Wrap" JustifyContent="Center" AlignItems="Center" BackgroundColor="White" Padding="12,10">
-            <Button Text="🏠 Overview" Command="{Binding ShowPanelCommand}" CommandParameter="overview"
+            <Button Text="Overview" Command="{Binding ShowPanelCommand}" CommandParameter="overview"
                 FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsOverviewPanelVisible}" Value="True">
@@ -44,7 +44,7 @@
                     </Button.Triggers>
                 </Button>
 
-                <Button Text="👤 My Profile" Command="{Binding ShowPanelCommand}" CommandParameter="profile"
+                <Button Text="My Profile" Command="{Binding ShowPanelCommand}" CommandParameter="profile"
                 FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsProfilePanelVisible}" Value="True">
@@ -54,7 +54,7 @@
                     </Button.Triggers>
                 </Button>
 
-                <Button Text="📅 Bookings" Command="{Binding ShowPanelCommand}" CommandParameter="bookings"
+                <Button Text="Bookings" Command="{Binding ShowPanelCommand}" CommandParameter="bookings"
                 FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsBookingsPanelVisible}" Value="True">
@@ -64,7 +64,7 @@
                     </Button.Triggers>
                 </Button>
 
-                <Button Text="🕐 Availability" Command="{Binding ShowPanelCommand}" CommandParameter="availability"
+                <Button Text="Availability" Command="{Binding ShowPanelCommand}" CommandParameter="availability"
                 FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsAvailabilityPanelVisible}" Value="True">
@@ -74,7 +74,7 @@
                     </Button.Triggers>
                 </Button>
 
-                <Button Text="⭐ Reviews" Command="{Binding ShowPanelCommand}" CommandParameter="reviews"
+                <Button Text="Reviews" Command="{Binding ShowPanelCommand}" CommandParameter="reviews"
                 FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding IsReviewsPanelVisible}" Value="True">
@@ -98,7 +98,6 @@
                     <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
                         <Border Grid.Row="0" Grid.Column="0" StrokeShape="RoundRectangle(14)" StrokeThickness="1" Stroke="#e8f4f8" Padding="16">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Grid.Column="0" Text="📅" FontSize="24" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="{Binding TotalBookings}" FontSize="24" FontAttributes="Bold" TextColor="#062035"/>
                                     <Label Text="Total Bookings" FontSize="12" TextColor="#4a7a92"/>
@@ -108,7 +107,6 @@
 
                         <Border Grid.Row="0" Grid.Column="1" StrokeShape="RoundRectangle(14)" StrokeThickness="1" Stroke="#e8f4f8" Padding="16">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Grid.Column="0" Text="⏳" FontSize="24" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="{Binding PendingBookings}" FontSize="24" FontAttributes="Bold" TextColor="#062035"/>
                                     <Label Text="Pending" FontSize="12" TextColor="#4a7a92"/>
@@ -118,7 +116,6 @@
 
                         <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle(14)" StrokeThickness="1" Stroke="#e8f4f8" Padding="16">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Grid.Column="0" Text="✅" FontSize="24" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="{Binding CompletedBookings}" FontSize="24" FontAttributes="Bold" TextColor="#062035"/>
                                     <Label Text="Completed" FontSize="12" TextColor="#4a7a92"/>
@@ -128,7 +125,6 @@
 
                         <Border Grid.Row="1" Grid.Column="1" StrokeShape="RoundRectangle(14)" StrokeThickness="1" Stroke="#e8f4f8" Padding="16">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Grid.Column="0" Text="⭐" FontSize="24" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="{Binding AverageRating}" FontSize="24" FontAttributes="Bold" TextColor="#062035"/>
                                     <Label Text="Avg. Rating" FontSize="12" TextColor="#4a7a92"/>
@@ -147,16 +143,20 @@
                                         <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Margin="0,4" Padding="12">
                                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                                                 <VerticalStackLayout Grid.Column="0">
-                                                    <Label Text="{Binding ClientName}" FontSize="14" FontAttributes="Bold" TextColor="#062035"/>
+                                                    <Label Text="{Binding CaregiverName}" FontSize="14" FontAttributes="Bold" TextColor="#062035"/>
                                                     <Label Text="{Binding ServiceName}" FontSize="12" TextColor="#4a7a92"/>
-                                                    <Label Text="{Binding BookingDateDisplay}" FontSize="11" TextColor="#4a7a92"/>
+                                                    <Label Text="{Binding DateTimeDisplay}" FontSize="11" TextColor="#4a7a92"/>
                                                 </VerticalStackLayout>
-                                                <Label Grid.Column="1" 
-                                                       Text="{Binding Status}" 
-                                                       FontSize="12" 
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"
-                                                       Padding="8,4"/>
+                                                <Border Grid.Column="1"
+                                                        StrokeShape="RoundRectangle(20)"
+                                                        Padding="10,4"
+                                                        BackgroundColor="{Binding StatusColor}"
+                                                        VerticalOptions="Center">
+                                                    <Label Text="{Binding Status}"
+                                                           FontSize="11"
+                                                           FontAttributes="Bold"
+                                                           TextColor="{Binding StatusTextColor}"/>
+                                                </Border>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -232,36 +232,23 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <!-- Services Offered -->
+                    <!-- Services Offered (loaded from the database, not hardcoded) -->
                     <Border StrokeShape="RoundRectangle(14)" StrokeThickness="1" Stroke="#e8f4f8" Padding="16">
                         <VerticalStackLayout Spacing="12">
                             <Label Text="Services I Offer" FontSize="16" FontAttributes="Bold" TextColor="#062035"/>
-                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="12">
-                                <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="8">
-                                    <CheckBox IsChecked="{Binding IsServiceSelected[0]}" Color="#00838f" VerticalOptions="Center"/>
-                                    <Label Text="👶 Child Care" FontSize="12" VerticalOptions="Center"/>
-                                </HorizontalStackLayout>
-
-                                <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="8">
-                                    <CheckBox IsChecked="{Binding IsServiceSelected[1]}" Color="#00838f" VerticalOptions="Center"/>
-                                    <Label Text="👴 Elderly Care" FontSize="12" VerticalOptions="Center"/>
-                                </HorizontalStackLayout>
-
-                                <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="8">
-                                    <CheckBox IsChecked="{Binding IsServiceSelected[2]}" Color="#00838f" VerticalOptions="Center"/>
-                                    <Label Text="🐾 Pet Care" FontSize="12" VerticalOptions="Center"/>
-                                </HorizontalStackLayout>
-
-                                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="8">
-                                    <CheckBox IsChecked="{Binding IsServiceSelected[3]}" Color="#00838f" VerticalOptions="Center"/>
-                                    <Label Text="🏠 House Sitting" FontSize="12" VerticalOptions="Center"/>
-                                </HorizontalStackLayout>
-
-                                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Spacing="8">
-                                    <CheckBox IsChecked="{Binding IsServiceSelected[4]}" Color="#00838f" VerticalOptions="Center"/>
-                                    <Label Text="♿ Special Needs" FontSize="12" VerticalOptions="Center"/>
-                                </HorizontalStackLayout>
-                            </Grid>
+                            <CollectionView ItemsSource="{Binding AvailableServices}">
+                                <CollectionView.ItemsLayout>
+                                    <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="12" VerticalItemSpacing="14"/>
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <HorizontalStackLayout Spacing="8">
+                                            <CheckBox IsChecked="{Binding IsSelected}" Color="#00838f" VerticalOptions="Center"/>
+                                            <Label Text="{Binding ServiceName}" FontSize="12" VerticalOptions="Center" LineBreakMode="TailTruncation"/>
+                                        </HorizontalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
                         </VerticalStackLayout>
                     </Border>
 
@@ -281,41 +268,56 @@
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
                                         <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Margin="0,4" Padding="12">
-                                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="12" RowSpacing="8">
-                                                <VerticalStackLayout Grid.Row="0" Grid.Column="0">
-                                                    <Label Text="{Binding ClientName}" FontSize="14" FontAttributes="Bold" TextColor="#062035"/>
-                                                    <Label Text="{Binding ServiceName}" FontSize="12" TextColor="#4a7a92"/>
-                                                    <Label Text="{Binding BookingDateDisplay}" FontSize="11" TextColor="#4a7a92"/>
-                                                </VerticalStackLayout>
-                                                <Label Grid.Row="0" Grid.Column="1" 
-                                                       Text="{Binding Status}" 
-                                                       FontSize="12" 
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"/>
-                                                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="6">
-                                                    <Button Text="✓ Accept" 
-                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type VerticalStackLayout}}, Path=BindingContext.AcceptBookingCommand}"
+                                            <VerticalStackLayout Spacing="10">
+                                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                                    <VerticalStackLayout Grid.Column="0">
+                                                        <Label Text="{Binding CaregiverName}" FontSize="14" FontAttributes="Bold" TextColor="#062035"/>
+                                                        <Label Text="{Binding ServiceName}" FontSize="12" TextColor="#4a7a92"/>
+                                                        <Label Text="{Binding DateTimeDisplay}" FontSize="11" TextColor="#4a7a92"/>
+                                                    </VerticalStackLayout>
+                                                    <Border Grid.Column="1"
+                                                            StrokeShape="RoundRectangle(20)"
+                                                            Padding="10,4"
+                                                            BackgroundColor="{Binding StatusColor}"
+                                                            VerticalOptions="Center">
+                                                        <Label Text="{Binding Status}"
+                                                               FontSize="11"
+                                                               FontAttributes="Bold"
+                                                               TextColor="{Binding StatusTextColor}"/>
+                                                    </Border>
+                                                </Grid>
+
+                                                <!-- Accept/Decline: only offered while the booking is still Pending -->
+                                                <HorizontalStackLayout Spacing="8" IsVisible="{Binding CanAccept}">
+                                                    <Button Text="✓ Accept"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type CollectionView}}, Path=BindingContext.AcceptBookingCommand}"
                                                             CommandParameter="{Binding BookingID}"
                                                             BackgroundColor="#26c6da"
                                                             TextColor="White"
                                                             FontSize="12"
-                                                            Padding="8,4"/>
-                                                    <Button Text="✕ Decline" 
-                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type VerticalStackLayout}}, Path=BindingContext.DeclineBookingCommand}"
+                                                            CornerRadius="8"
+                                                            Padding="14,8"/>
+                                                    <Button Text="✕ Decline"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type CollectionView}}, Path=BindingContext.DeclineBookingCommand}"
                                                             CommandParameter="{Binding BookingID}"
                                                             BackgroundColor="#e53935"
                                                             TextColor="White"
                                                             FontSize="12"
-                                                            Padding="8,4"/>
-                                                    <Button Text="✔ Complete" 
-                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type VerticalStackLayout}}, Path=BindingContext.CompleteBookingCommand}"
-                                                            CommandParameter="{Binding BookingID}"
-                                                            BackgroundColor="#2e7d32"
-                                                            TextColor="White"
-                                                            FontSize="12"
-                                                            Padding="8,4"/>
-                                                </VerticalStackLayout>
-                                            </Grid>
+                                                            CornerRadius="8"
+                                                            Padding="14,8"/>
+                                                </HorizontalStackLayout>
+
+                                                <!-- Complete: only offered once the caregiver has already accepted (Confirmed) -->
+                                                <Button Text="✔ Mark as Completed"
+                                                        IsVisible="{Binding CanComplete}"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type CollectionView}}, Path=BindingContext.CompleteBookingCommand}"
+                                                        CommandParameter="{Binding BookingID}"
+                                                        BackgroundColor="#2e7d32"
+                                                        TextColor="White"
+                                                        FontSize="12"
+                                                        CornerRadius="8"
+                                                        Padding="14,8"/>
+                                            </VerticalStackLayout>
                                         </Border>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
@@ -336,7 +338,7 @@
                         <VerticalStackLayout Spacing="16">
                             <Label Text="Weekly Availability" FontSize="16" FontAttributes="Bold" TextColor="#062035"/>
 
-                            <!-- Index 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun — same order as the web app -->
+                            <!-- Index order matches Common.DayOfWeekHelper (0=Mon ... 6=Sun) — same order as the web app -->
                             <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="6">
                                 <VerticalStackLayout Grid.Column="0" Spacing="4">
                                     <Label Text="Mon" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>

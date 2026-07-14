@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maui.Controls;
+using SwiftCare123P.Common;
 using SwiftCare123P.Models;
 using SwiftCare123P.Services;
 using System.Collections.ObjectModel;
@@ -161,6 +162,14 @@ public partial class UserDashboard : ContentPage
         }
     }
 
+    private async void OnBookNowClicked(object sender, EventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is CaregiverModel caregiver)
+        {
+            await Navigation.PushAsync(new BookingPage(caregiver));
+        }
+    }
+
     private void OnFilterBookingsClicked(object sender, EventArgs e)
     {
         if (sender is Button button && button.CommandParameter is string status)
@@ -174,10 +183,10 @@ public partial class UserDashboard : ContentPage
     {
         var filteredBookings = _currentFilter switch
         {
-            "pending" => _bookings.Where(b => b.Status == "Pending"),
-            "confirmed" => _bookings.Where(b => b.Status == "Confirmed"),
-            "completed" => _bookings.Where(b => b.Status == "Completed"),
-            "cancelled" => _bookings.Where(b => b.Status == "Cancelled"),
+            "pending" => _bookings.Where(b => b.Status == BookingStatus.Pending),
+            "confirmed" => _bookings.Where(b => b.Status == BookingStatus.Confirmed),
+            "completed" => _bookings.Where(b => b.Status == BookingStatus.Completed),
+            "cancelled" => _bookings.Where(b => b.Status == BookingStatus.Cancelled),
             _ => _bookings
         };
 
@@ -214,4 +223,22 @@ public partial class UserDashboard : ContentPage
             _ => "SwiftCare"
         };
     }
+
+    private async void OnLogoutClicked(object sender, EventArgs e)
+    {
+        bool answer = await DisplayAlert(
+            "Logout",
+            "Do you want to logout?",
+            "Yes",
+            "Cancel");
+
+        if (!answer)
+            return;
+
+        SecureStorage.Default.RemoveAll();
+
+        Application.Current!.MainPage =
+            new NavigationPage(new MainPage());
+    }
+
 }

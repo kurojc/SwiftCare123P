@@ -20,12 +20,20 @@ public interface IDatabaseService
     Task UpdateCaregiverProfileAsync(CaregiverModel profile);
 
     // --- Availability ---
-    // selectedDays: comma-separated day indices, e.g. "0,2,4" (0=Monday ... 6=Sunday) � matches the web app's day order
+    // selectedDays: comma-separated day indices, e.g. "0,2,4" (0=Monday ... 6=Sunday) — matches the web app's day order
     Task UpdateCaregiverAvailabilityAsync(int caregiverId, string selectedDays, TimeSpan startTime, TimeSpan endTime);
 
     // --- Bookings ---
     Task<List<BookingModel>> GetCaregiverBookingsAsync(int caregiverId);
     Task UpdateBookingStatusAsync(int bookingId, string status);
+
+    // caregiverId is the caregiver's UserID (same convention as GetCaregiverProfileAsync above),
+    // NOT CaregiverProfiles.CaregiverID — the implementation resolves that internally.
+    // Returns false if no caregiver profile exists for that user.
+    Task<bool> CreateBookingAsync(int userId, int caregiverId, int serviceId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime);
+
+    // --- Services ---
+    Task<List<ServiceModel>> GetServicesAsync();
 
     // --- Reviews ---
     Task<List<ReviewModel>> GetCaregiverReviewsAsync(int caregiverId);

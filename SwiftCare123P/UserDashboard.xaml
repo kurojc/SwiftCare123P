@@ -167,16 +167,29 @@
                                                        LineBreakMode="TailTruncation"
                                                        VerticalOptions="Center" />
                                                 
-                                                <Button Grid.Column="1"
-                                                        Text="Contact"
-                                                        BackgroundColor="#0a2a4a"
-                                                        TextColor="White"
-                                                        FontAttributes="Bold"
-                                                        Padding="16,10"
-                                                        FontSize="12"
-                                                        Clicked="OnContactCaregiverClicked"
-                                                        CommandParameter="{Binding .}"
-                                                        CornerRadius="10" />
+                                                <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                                    <Button Text="Contact"
+                                                            BackgroundColor="White"
+                                                            BorderColor="#0a2a4a"
+                                                            BorderWidth="1.5"
+                                                            TextColor="#0a2a4a"
+                                                            FontAttributes="Bold"
+                                                            Padding="14,10"
+                                                            FontSize="12"
+                                                            Clicked="OnContactCaregiverClicked"
+                                                            CommandParameter="{Binding .}"
+                                                            CornerRadius="10" />
+
+                                                    <Button Text="Book Now"
+                                                            BackgroundColor="#0a2a4a"
+                                                            TextColor="White"
+                                                            FontAttributes="Bold"
+                                                            Padding="14,10"
+                                                            FontSize="12"
+                                                            Clicked="OnBookNowClicked"
+                                                            CommandParameter="{Binding .}"
+                                                            CornerRadius="10" />
+                                                </HorizontalStackLayout>
                                             </Grid>
                                         </Grid>
                                     </Border>
@@ -294,18 +307,27 @@
                                             </VerticalStackLayout>
 
                                             <!-- Status Badge -->
-                                            <Border Grid.Row="0" 
-                                                    Grid.Column="1"
-                                                    StrokeShape="RoundRectangle 20"
-                                                    Padding="12,6"
-                                                    BackgroundColor="{Binding StatusColor}"
-                                                    Stroke="Transparent">
-                                                <Label Text="{Binding Status}" 
-                                                       FontSize="11" 
-                                                       FontAttributes="Bold"
-                                                       TextColor="{Binding StatusTextColor}"
-                                                       HorizontalOptions="Center"
-                                                       HorizontalTextAlignment="Center" />
+                                            <Border
+                                                Grid.Row="0"
+                                                Grid.Column="1"
+                                                BackgroundColor="{Binding StatusColor}"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 18"
+                                                Padding="14,8"
+                                                HorizontalOptions="End"
+                                                VerticalOptions="Center"
+                                                MinimumWidthRequest="95">
+                                                
+                                                <Label
+                                                    Text="{Binding Status}"
+                                                    FontSize="12"
+                                                    FontAttributes="Bold"
+                                                    TextColor="{Binding StatusTextColor}"
+                                                    HorizontalTextAlignment="Center"
+                                                    VerticalTextAlignment="Center"
+                                                    HorizontalOptions="Center"
+                                                    VerticalOptions="Center"/>
+
                                             </Border>
 
                                             <!-- Review Button -->
@@ -554,7 +576,7 @@
                                 </VerticalStackLayout>
 
                                 <!-- Save Button -->
-                                <Button Text="💾  Save Profile"
+                                <Button Text="Save Profile"
                                         BackgroundColor="#00838f"
                                         TextColor="White"
                                         FontAttributes="Bold"
@@ -562,6 +584,15 @@
                                         FontSize="14"
                                         Clicked="OnSaveProfileClicked"
                                         CornerRadius="10" />
+                                
+                                <Button Text="Log Out"
+                                        Margin="0,10,0,0"
+                                        BackgroundColor="#e53935"
+                                        TextColor="White"
+                                        FontAttributes="Bold"
+                                        Padding="16,12"
+                                        Clicked="OnLogoutClicked"
+                                        CornerRadius="10"/>
 
                                 <Label x:Name="lblProfileMsg" 
                                        FontSize="12" 
@@ -583,7 +614,7 @@
                 <Grid ColumnDefinitions="*,*,*" BackgroundColor="White">
                     
                     <Button Grid.Column="0"
-                            Text="🔍 Browse"
+                            Text="Browse"
                             BackgroundColor="White"
                             TextColor="#00838f"
                             FontAttributes="Bold"
@@ -593,7 +624,7 @@
                             CornerRadius="0" />
                     
                     <Button Grid.Column="1"
-                            Text="📅 Bookings"
+                            Text="Bookings"
                             BackgroundColor="White"
                             TextColor="#4a7a92"
                             FontAttributes="Bold"
@@ -603,7 +634,7 @@
                             CornerRadius="0" />
                     
                     <Button Grid.Column="2"
-                            Text="👤 Profile"
+                            Text="Profile"
                             BackgroundColor="White"
                             TextColor="#4a7a92"
                             FontAttributes="Bold"

@@ -82,7 +82,7 @@ public class SignUpViewModel : BaseViewModel
 
         CreateAccountCommand = new AsyncRelayCommand(async _ => await CreateAccountAsync());
         BackToHomeCommand = new AsyncRelayCommand(async _ => await _navigation.PopToRootAsync());
-        GoToLoginCommand = new AsyncRelayCommand(async _ => await _navigation.PushAsync(new SignUpPage()));
+        GoToLoginCommand = new AsyncRelayCommand(async _ => await _navigation.PushAsync(new LoginPage()));
     }
 
     public void SetPage(Page page) => _page = page;

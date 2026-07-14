@@ -69,6 +69,9 @@
 	  <MauiXaml Update="CareGiverDashboard.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="BookingPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="SignUpPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -82,6 +85,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="BookingPage.xaml.cs">
+	    <DependentUpon>BookingPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="UserDashboard.xaml.cs">
 	    <DependentUpon>UserDashboard.xaml</DependentUpon>
 	  </Compile>

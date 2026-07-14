@@ -1,4 +1,5 @@
 ﻿using SQLite;
+using SwiftCare123P.Common;
 
 namespace SwiftCare123P.Models;
 
@@ -15,5 +16,5 @@ public class BookingEntity
     public string StartTime { get; set; } = string.Empty; // "HH:mm"
     public string EndTime { get; set; } = string.Empty;   // "HH:mm"
 
-    public string Status { get; set; } = "Pending";
+    public string Status { get; set; } = BookingStatus.Pending;
 }

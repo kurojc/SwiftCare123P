@@ -1,4 +1,5 @@
 using SQLite;
+using SwiftCare123P.Common;
 using SwiftCare123P.Models;
 
 namespace SwiftCare123P.Services;
@@ -222,6 +223,44 @@ public class DatabaseService : IDatabaseService
         await db.UpdateAsync(booking);
     }
 
+    public async Task<bool> CreateBookingAsync(int userId, int caregiverId, int serviceId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
+    {
+        var db = await GetDbAsync();
+
+        // caregiverId here is the caregiver's UserID (same convention used throughout this
+        // service); BookingEntity.CaregiverID actually points at CaregiverProfileEntity's own
+        // primary key, so resolve that first — same lookup GetCaregiverBookingsAsync uses.
+        var profile = await db.Table<CaregiverProfileEntity>().Where(c => c.UserID == caregiverId).FirstOrDefaultAsync();
+        if (profile is null) return false;
+
+        var booking = new BookingEntity
+        {
+            UserID = userId,
+            CaregiverID = profile.CaregiverID,
+            ServiceID = serviceId,
+            BookingDate = bookingDate.Date,
+            StartTime = startTime.ToString(@"hh\:mm"),
+            EndTime = endTime.ToString(@"hh\:mm"),
+            Status = BookingStatus.Pending
+        };
+
+        await db.InsertAsync(booking);
+        return true;
+    }
+
+    // ───────────────────────── Services ─────────────────────────
+
+    public async Task<List<ServiceModel>> GetServicesAsync()
+    {
+        var db = await GetDbAsync();
+        var services = await db.Table<ServiceEntity>().ToListAsync();
+
+        return services
+            .OrderBy(s => s.ServiceID)
+            .Select(s => new ServiceModel { ServiceID = s.ServiceID, ServiceName = s.ServiceName })
+            .ToList();
+    }
+
     // ───────────────────────── Reviews ─────────────────────────
 
     public async Task<List<ReviewModel>> GetCaregiverReviewsAsync(int caregiverId)
@@ -324,7 +363,13 @@ public class DatabaseService : IDatabaseService
             DateTimeDisplay = $"{b.BookingDate:MMM dd, yyyy}\n{start:hh\\:mm} – {end:hh\\:mm}",
             StatusColor = bg,
             StatusTextColor = fg,
-            CanReview = !forCaregiverView && b.Status == "Completed" && !hasReview
+            CanReview = !forCaregiverView && b.Status == BookingStatus.Completed && !hasReview,
+
+            // Caregiver-side booking actions: only ever offered to the caregiver's own view,
+            // and only for the status they're actually valid from.
+            CanAccept = forCaregiverView && b.Status == BookingStatus.Pending,
+            CanDecline = forCaregiverView && b.Status == BookingStatus.Pending,
+            CanComplete = forCaregiverView && b.Status == BookingStatus.Confirmed
         };
     }
 
@@ -333,9 +378,9 @@ public class DatabaseService : IDatabaseService
 
     private static (Color bg, Color fg) StatusColors(string status) => status switch
     {
-        "Confirmed" => (Color.FromArgb("#e0f7fa"), Color.FromArgb("#006064")),
-        "Completed" => (Color.FromArgb("#e8f5e9"), Color.FromArgb("#2e7d32")),
-        "Cancelled" => (Color.FromArgb("#fdecea"), Color.FromArgb("#b71c1c")),
+        BookingStatus.Confirmed => (Color.FromArgb("#e0f7fa"), Color.FromArgb("#006064")),
+        BookingStatus.Completed => (Color.FromArgb("#e8f5e9"), Color.FromArgb("#2e7d32")),
+        BookingStatus.Cancelled => (Color.FromArgb("#fdecea"), Color.FromArgb("#b71c1c")),
         _ => (Color.FromArgb("#fff8e1"), Color.FromArgb("#8d6e00")), // Pending / default
     };
 }
