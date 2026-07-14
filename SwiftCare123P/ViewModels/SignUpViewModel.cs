@@ -112,7 +112,6 @@ public class SignUpViewModel : BaseViewModel
 
         var newUser = new User
         {
-            Id = new Random().Next(1000, 9999),
             FirstName = FirstName.Trim(),
             LastName = LastName.Trim(),
             Email = Email.Trim(),
@@ -125,6 +124,7 @@ public class SignUpViewModel : BaseViewModel
         };
 
         await _databaseService.SaveUserAsync(newUser);
+
 
         ErrorMessage = string.Empty;
         

@@ -113,6 +113,21 @@ public partial class CaregiverDashboardViewModel : ObservableObject
         }
     }
 
+    public async Task Logout()
+    {
+        SecureStorage.Default.RemoveAll();
+
+        var navigation = Application.Current?.Windows[0]?.Navigation;
+        if (navigation is not null)
+            await navigation.PopToRootAsync();
+    }
+
+    // Add near the top of the class, matching the DB's fixed service order:
+    private static readonly string[] ServiceNames =
+    {
+    "Child Care", "Elderly Care", "Pet Care", "House Sitting", "Special Needs Care"
+    };
+
     private async Task LoadProfile()
     {
         try
@@ -124,20 +139,31 @@ public partial class CaregiverDashboardViewModel : ObservableObject
                 ProfileModel = profile;
                 ProfileName = string.IsNullOrWhiteSpace(profile.FullName) ? GreetingName : profile.FullName;
                 BioCharCount = $"({profile.Bio?.Length ?? 0}/150)";
+
+                var selected = (profile.ServicesOffered ?? string.Empty)
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+                for (int i = 0; i < IsServiceSelected.Count; i++)
+                    IsServiceSelected[i] = selected.Contains(ServiceNames[i]);
             }
             else
             {
-                // No profile on record yet - fall back to placeholder defaults
+                
+                var user = await _dbService.GetUserProfileAsync(_caregiverId);
+
                 ProfileModel = new CaregiverModel
                 {
                     CaregiverID = _caregiverId,
-                    FullName = GreetingName,
-                    ContactNo = "",
-                    Address = "",
+                    FullName = user is not null ? $"{user.FirstName} {user.LastName}".Trim() : GreetingName,
+                    ContactNo = user?.ContactNo ?? "",
+                    Address = user?.Address ?? "",
                     HourlyRateDisplay = "",
                     Bio = ""
                 };
                 BioCharCount = "(0/150)";
+
+                for (int i = 0; i < IsServiceSelected.Count; i++)
+                    IsServiceSelected[i] = false;
             }
         }
         catch (Exception ex)
@@ -287,11 +313,14 @@ public partial class CaregiverDashboardViewModel : ObservableObject
                 return;
             }
 
+            ProfileModel.ServicesOffered = string.Join(", ", ServiceNames
+                .Where((_, i) => IsServiceSelected[i]));
+
             await _dbService.UpdateCaregiverProfileAsync(ProfileModel);
 
             ProfileName = ProfileModel.FullName;
 
-            await ShowAlert("Success", "? Profile saved successfully!");
+            await ShowAlert("Success", "✓ Profile saved successfully!");
         }
         catch (Exception ex)
         {

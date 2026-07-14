@@ -7,12 +7,20 @@ public interface IDatabaseService
     Task<bool> EmailExistsAsync(string email);
     Task SaveUserAsync(User user);
 
+    // --- CareSeeker dashboard ---
+    Task<List<CaregiverModel>> GetCaregiversAsync(string searchName = "", string searchService = "", int userId = 0);
+    Task<List<BookingModel>> GetUserBookingsAsync(int userId);
+    Task<UserModel?> GetUserProfileAsync(int userId);
+    Task<bool> UpdateUserProfileAsync(UserModel user);
+
     // --- Caregiver profile ---
+    // NOTE: the "caregiverId" parameter here is actually the caregiver's UserID
+    // (that's what the dashboards have on hand after login), not CaregiverProfiles.CaregiverID.
     Task<CaregiverModel?> GetCaregiverProfileAsync(int caregiverId);
     Task UpdateCaregiverProfileAsync(CaregiverModel profile);
 
     // --- Availability ---
-    // selectedDays: comma-separated day indices, e.g. "0,2,4" (0=Sunday ... 6=Saturday)
+    // selectedDays: comma-separated day indices, e.g. "0,2,4" (0=Monday ... 6=Sunday) — matches the web app's day order
     Task UpdateCaregiverAvailabilityAsync(int caregiverId, string selectedDays, TimeSpan startTime, TimeSpan endTime);
 
     // --- Bookings ---

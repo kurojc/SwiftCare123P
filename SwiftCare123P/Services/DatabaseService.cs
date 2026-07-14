@@ -1,444 +1,341 @@
+using SQLite;
 using SwiftCare123P.Models;
-using System.Diagnostics;
 
 namespace SwiftCare123P.Services;
 
 public class DatabaseService : IDatabaseService
 {
-    private static bool _initialized = false;
+    private SQLiteAsyncConnection? _db;
 
-    public async Task InitializeAsync()
+    // Fixed service list — matches the web app's checkboxes/dropdowns exactly.
+    private static readonly string[] DefaultServiceNames =
     {
-        if (_initialized)
-            return;
+        "Child Care", "Elderly Care", "Pet Care", "House Sitting", "Special Needs Care"
+    };
 
-        await Task.Delay(100);
-        _initialized = true;
+    private async Task<SQLiteAsyncConnection> GetDbAsync()
+    {
+        if (_db is not null)
+            return _db;
+
+        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "swiftcare.db3");
+        _db = new SQLiteAsyncConnection(dbPath);
+
+        await _db.CreateTableAsync<User>();
+        await _db.CreateTableAsync<CaregiverProfileEntity>();
+        await _db.CreateTableAsync<BookingEntity>();
+        await _db.CreateTableAsync<ReviewEntity>();
+        await _db.CreateTableAsync<ServiceEntity>();
+
+        await SeedServicesAsync(_db);
+
+        return _db;
     }
+
+    private static async Task SeedServicesAsync(SQLiteAsyncConnection db)
+    {
+        var count = await db.Table<ServiceEntity>().CountAsync();
+        if (count > 0) return;
+
+        foreach (var name in DefaultServiceNames)
+            await db.InsertAsync(new ServiceEntity { ServiceName = name });
+    }
+
+    public async Task InitializeAsync() => await GetDbAsync();
+
+    // ───────────────────────── Users ─────────────────────────
 
     public async Task<User?> GetUserByEmailAsync(string email)
     {
-        try
-        {
-            await Task.Delay(100);
-
-            var mockUsers = new List<User>
-            {
-                new()
-                {
-                    Id = 1,
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Email = "john@example.com",
-                    Password = "password123",
-                    Role = "CareSeeker",
-                    ContactNumber = "09123456789",
-                    Address = "123 Main St, Makati"
-                },
-                new()
-                {
-                    Id = 2,
-                    FirstName = "Maria",
-                    LastName = "Santos",
-                    Email = "maria@example.com",
-                    Password = "password123",
-                    Role = "Caregiver",
-                    ContactNumber = "09987654321",
-                    Address = "456 Oak Ave, Quezon City"
-                }
-            };
-
-            return mockUsers.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in GetUserByEmailAsync: {ex.Message}");
-            return null;
-        }
+        var db = await GetDbAsync();
+        return await db.Table<User>().Where(u => u.Email == email).FirstOrDefaultAsync();
     }
 
     public async Task<bool> EmailExistsAsync(string email)
-    {
-        try
-        {
-            await Task.Delay(100);
-            var user = await GetUserByEmailAsync(email);
-            return user != null;
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in EmailExistsAsync: {ex.Message}");
-            return false;
-        }
-    }
+        => await GetUserByEmailAsync(email) is not null;
 
     public async Task SaveUserAsync(User user)
     {
-        try
-        {
-            await Task.Delay(100);
-            Debug.WriteLine($"User saved: {user.Email}");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in SaveUserAsync: {ex.Message}");
-            throw;
-        }
+        var db = await GetDbAsync();
+        user.AccountStatus = string.IsNullOrWhiteSpace(user.AccountStatus) ? "Active" : user.AccountStatus;
+        if (user.CreatedDate == default) user.CreatedDate = DateTime.UtcNow;
+
+        // AutoIncrement: sqlite-net writes the generated Id back onto `user` after insert.
+        await db.InsertAsync(user);
     }
+
+    // ───────────────────── CareSeeker dashboard ─────────────────────
 
     public async Task<List<CaregiverModel>> GetCaregiversAsync(string searchName = "", string searchService = "", int userId = 0)
     {
-        var caregivers = new List<CaregiverModel>();
+        var db = await GetDbAsync();
+        var profiles = await db.Table<CaregiverProfileEntity>().ToListAsync();
 
-        try
+        var result = new List<CaregiverModel>();
+        foreach (var p in profiles)
         {
-            await Task.Delay(500);
-
-            caregivers = GetMockCaregivers();
-
-            if (!string.IsNullOrEmpty(searchName))
-            {
-                caregivers = caregivers.Where(c => c.FullName?.Contains(searchName, StringComparison.OrdinalIgnoreCase) == true).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(searchService))
-            {
-                caregivers = caregivers.Where(c => c.ServicesOffered?.Contains(searchService, StringComparison.OrdinalIgnoreCase) == true).ToList();
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in GetCaregiversAsync: {ex.Message}");
+            var user = await db.Table<User>().Where(u => u.Id == p.UserID).FirstOrDefaultAsync();
+            result.Add(await ToCaregiverModelAsync(db, p, user));
         }
 
-        return caregivers;
+        if (!string.IsNullOrWhiteSpace(searchName))
+            result = result.Where(c => c.FullName?.Contains(searchName, StringComparison.OrdinalIgnoreCase) == true).ToList();
+
+        if (!string.IsNullOrWhiteSpace(searchService))
+            result = result.Where(c => c.ServicesOffered?.Contains(searchService, StringComparison.OrdinalIgnoreCase) == true).ToList();
+
+        return result;
     }
 
     public async Task<List<BookingModel>> GetUserBookingsAsync(int userId)
     {
-        var bookings = new List<BookingModel>();
+        var db = await GetDbAsync();
+        var bookings = await db.Table<BookingEntity>().Where(b => b.UserID == userId).ToListAsync();
 
-        try
-        {
-            await Task.Delay(500);
+        var result = new List<BookingModel>();
+        foreach (var b in bookings.OrderByDescending(x => x.BookingDate))
+            result.Add(await ToBookingModelAsync(db, b, forCaregiverView: false));
 
-            bookings = new List<BookingModel>
-            {
-                new()
-                {
-                    BookingID = 1,
-                    CaregiverID = 1,
-                    CaregiverName = "Maria Santos",
-                    ServiceName = "Child Care",
-                    BookingDate = DateTime.Now.AddDays(2),
-                    StartTime = new TimeSpan(9, 0, 0),
-                    EndTime = new TimeSpan(17, 0, 0),
-                    Status = "Confirmed",
-                    HasReview = false,
-                    DateTimeDisplay = $"{DateTime.Now.AddDays(2):MMM dd, yyyy}\n09:00 – 17:00",
-                    StatusColor = Color.FromArgb("#e0f7fa"),
-                    StatusTextColor = Color.FromArgb("#006064"),
-                    CanReview = false
-                },
-                new()
-                {
-                    BookingID = 2,
-                    CaregiverID = 2,
-                    CaregiverName = "Juan dela Cruz",
-                    ServiceName = "Pet Care",
-                    BookingDate = DateTime.Now.AddDays(-5),
-                    StartTime = new TimeSpan(10, 0, 0),
-                    EndTime = new TimeSpan(16, 0, 0),
-                    Status = "Completed",
-                    HasReview = false,
-                    DateTimeDisplay = $"{DateTime.Now.AddDays(-5):MMM dd, yyyy}\n10:00 – 16:00",
-                    StatusColor = Color.FromArgb("#e8f5e9"),
-                    StatusTextColor = Color.FromArgb("#2e7d32"),
-                    CanReview = true
-                }
-            };
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in GetUserBookingsAsync: {ex.Message}");
-        }
-
-        return bookings;
+        return result;
     }
 
     public async Task<UserModel?> GetUserProfileAsync(int userId)
     {
-        UserModel? user = null;
+        var db = await GetDbAsync();
+        var user = await db.Table<User>().Where(u => u.Id == userId).FirstOrDefaultAsync();
+        if (user is null) return null;
 
-        try
+        return new UserModel
         {
-            await Task.Delay(300);
-
-            user = new UserModel
-            {
-                UserID = userId,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                ContactNo = "09123456789",
-                Gender = "Male",
-                Birthdate = new DateTime(1990, 5, 15),
-                Address = "123 Main St, Makati City"
-            };
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in GetUserProfileAsync: {ex.Message}");
-        }
-
-        return user;
+            UserID = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            ContactNo = user.ContactNumber,
+            Gender = user.Gender,
+            Birthdate = user.Birthdate,
+            Address = user.Address
+        };
     }
 
     public async Task<bool> UpdateUserProfileAsync(UserModel user)
     {
-        try
-        {
-            await Task.Delay(300);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in UpdateUserProfileAsync: {ex.Message}");
-            return false;
-        }
+        var db = await GetDbAsync();
+        var existing = await db.Table<User>().Where(u => u.Id == user.UserID).FirstOrDefaultAsync();
+        if (existing is null) return false;
+
+        existing.FirstName = user.FirstName ?? existing.FirstName;
+        existing.LastName = user.LastName ?? existing.LastName;
+        existing.ContactNumber = user.ContactNo ?? existing.ContactNumber;
+        existing.Gender = user.Gender ?? existing.Gender;
+        existing.Address = user.Address ?? existing.Address;
+        if (user.Birthdate.HasValue) existing.Birthdate = user.Birthdate.Value;
+
+        await db.UpdateAsync(existing);
+        return true;
     }
 
-    // ---------------------------------------------------------------
-    // Caregiver dashboard support (mock data, same style as above)
-    // ---------------------------------------------------------------
+    // ───────────────────── Caregiver profile ─────────────────────
 
     public async Task<CaregiverModel?> GetCaregiverProfileAsync(int caregiverId)
     {
-        try
-        {
-            await Task.Delay(300);
+        var db = await GetDbAsync();
+        var entity = await db.Table<CaregiverProfileEntity>().Where(c => c.UserID == caregiverId).FirstOrDefaultAsync();
+        if (entity is null) return null;
 
-            var caregivers = GetMockCaregivers();
-            return caregivers.FirstOrDefault(c => c.CaregiverID == caregiverId);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in GetCaregiverProfileAsync: {ex.Message}");
-            return null;
-        }
+        var user = await db.Table<User>().Where(u => u.Id == caregiverId).FirstOrDefaultAsync();
+        return await ToCaregiverModelAsync(db, entity, user);
     }
 
     public async Task UpdateCaregiverProfileAsync(CaregiverModel profile)
     {
-        try
+        var db = await GetDbAsync();
+        var entity = await GetOrCreateProfileByUserIdAsync(db, profile.CaregiverID);
+
+        entity.HourlyRate = profile.HourlyRate;
+        entity.Bio = profile.Bio ?? string.Empty;
+        entity.ServicesOffered = profile.ServicesOffered ?? string.Empty;
+        await db.UpdateAsync(entity);
+
+        if (!string.IsNullOrWhiteSpace(profile.FullName))
         {
-            await Task.Delay(300);
-            Debug.WriteLine($"Caregiver profile saved: {profile.CaregiverID} - {profile.FullName}");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in UpdateCaregiverProfileAsync: {ex.Message}");
-            throw;
+            var user = await db.Table<User>().Where(u => u.Id == profile.CaregiverID).FirstOrDefaultAsync();
+            if (user is not null)
+            {
+                var parts = profile.FullName.Trim().Split(' ', 2);
+                user.FirstName = parts[0];
+                user.LastName = parts.Length > 1 ? parts[1] : string.Empty;
+                if (!string.IsNullOrWhiteSpace(profile.ContactNo)) user.ContactNumber = profile.ContactNo;
+                if (!string.IsNullOrWhiteSpace(profile.Address)) user.Address = profile.Address;
+                await db.UpdateAsync(user);
+            }
         }
     }
 
     public async Task UpdateCaregiverAvailabilityAsync(int caregiverId, string selectedDays, TimeSpan startTime, TimeSpan endTime)
     {
-        try
-        {
-            await Task.Delay(300);
-            Debug.WriteLine($"Availability saved for caregiver {caregiverId}: days=[{selectedDays}] {startTime}-{endTime}");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in UpdateCaregiverAvailabilityAsync: {ex.Message}");
-            throw;
-        }
+        var db = await GetDbAsync();
+        var entity = await GetOrCreateProfileByUserIdAsync(db, caregiverId);
+
+        entity.AvailableDays = selectedDays ?? string.Empty;
+        entity.DayStartTime = startTime.ToString(@"hh\:mm");
+        entity.DayEndTime = endTime.ToString(@"hh\:mm");
+        entity.AvailabilityStatus = string.IsNullOrWhiteSpace(selectedDays) ? "Unavailable" : "Available";
+
+        await db.UpdateAsync(entity);
     }
+
+    private static async Task<CaregiverProfileEntity> GetOrCreateProfileByUserIdAsync(SQLiteAsyncConnection db, int userId)
+    {
+        var entity = await db.Table<CaregiverProfileEntity>().Where(c => c.UserID == userId).FirstOrDefaultAsync();
+        if (entity is not null) return entity;
+
+        entity = new CaregiverProfileEntity { UserID = userId, AvailabilityStatus = "Unavailable" };
+        await db.InsertAsync(entity);
+        return entity;
+    }
+
+    // ───────────────────────── Bookings ─────────────────────────
 
     public async Task<List<BookingModel>> GetCaregiverBookingsAsync(int caregiverId)
     {
-        var bookings = new List<BookingModel>();
+        var db = await GetDbAsync();
+        var profile = await db.Table<CaregiverProfileEntity>().Where(c => c.UserID == caregiverId).FirstOrDefaultAsync();
+        if (profile is null) return new List<BookingModel>();
 
-        try
-        {
-            await Task.Delay(500);
+        var bookings = await db.Table<BookingEntity>().Where(b => b.CaregiverID == profile.CaregiverID).ToListAsync();
 
-            bookings = new List<BookingModel>
-            {
-                new()
-                {
-                    BookingID = 101,
-                    CaregiverID = caregiverId,
-                    CaregiverName = "Maria Santos",
-                    ServiceName = "Child Care",
-                    BookingDate = DateTime.Now.AddDays(1),
-                    StartTime = new TimeSpan(9, 0, 0),
-                    EndTime = new TimeSpan(13, 0, 0),
-                    Status = "Pending",
-                    HasReview = false,
-                    DateTimeDisplay = $"{DateTime.Now.AddDays(1):MMM dd, yyyy}\n09:00 – 13:00",
-                    StatusColor = Color.FromArgb("#fff8e1"),
-                    StatusTextColor = Color.FromArgb("#8d6e00"),
-                    CanReview = false
-                },
-                new()
-                {
-                    BookingID = 102,
-                    CaregiverID = caregiverId,
-                    CaregiverName = "Maria Santos",
-                    ServiceName = "Elderly Care",
-                    BookingDate = DateTime.Now.AddDays(3),
-                    StartTime = new TimeSpan(8, 0, 0),
-                    EndTime = new TimeSpan(16, 0, 0),
-                    Status = "Confirmed",
-                    HasReview = false,
-                    DateTimeDisplay = $"{DateTime.Now.AddDays(3):MMM dd, yyyy}\n08:00 – 16:00",
-                    StatusColor = Color.FromArgb("#e0f7fa"),
-                    StatusTextColor = Color.FromArgb("#006064"),
-                    CanReview = false
-                },
-                new()
-                {
-                    BookingID = 103,
-                    CaregiverID = caregiverId,
-                    CaregiverName = "Maria Santos",
-                    ServiceName = "Child Care",
-                    BookingDate = DateTime.Now.AddDays(-4),
-                    StartTime = new TimeSpan(10, 0, 0),
-                    EndTime = new TimeSpan(15, 0, 0),
-                    Status = "Completed",
-                    HasReview = true,
-                    DateTimeDisplay = $"{DateTime.Now.AddDays(-4):MMM dd, yyyy}\n10:00 – 15:00",
-                    StatusColor = Color.FromArgb("#e8f5e9"),
-                    StatusTextColor = Color.FromArgb("#2e7d32"),
-                    CanReview = false
-                },
-                new()
-                {
-                    BookingID = 104,
-                    CaregiverID = caregiverId,
-                    CaregiverName = "Maria Santos",
-                    ServiceName = "Elderly Care",
-                    BookingDate = DateTime.Now.AddDays(-10),
-                    StartTime = new TimeSpan(9, 0, 0),
-                    EndTime = new TimeSpan(12, 0, 0),
-                    Status = "Cancelled",
-                    HasReview = false,
-                    DateTimeDisplay = $"{DateTime.Now.AddDays(-10):MMM dd, yyyy}\n09:00 – 12:00",
-                    StatusColor = Color.FromArgb("#fdecea"),
-                    StatusTextColor = Color.FromArgb("#b71c1c"),
-                    CanReview = false
-                }
-            };
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in GetCaregiverBookingsAsync: {ex.Message}");
-        }
+        var result = new List<BookingModel>();
+        foreach (var b in bookings.OrderByDescending(x => x.BookingDate))
+            result.Add(await ToBookingModelAsync(db, b, forCaregiverView: true));
 
-        return bookings;
+        return result;
     }
 
     public async Task UpdateBookingStatusAsync(int bookingId, string status)
     {
-        try
-        {
-            await Task.Delay(300);
-            Debug.WriteLine($"Booking {bookingId} status updated to: {status}");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in UpdateBookingStatusAsync: {ex.Message}");
-            throw;
-        }
+        var db = await GetDbAsync();
+        var booking = await db.Table<BookingEntity>().Where(b => b.BookingID == bookingId).FirstOrDefaultAsync();
+        if (booking is null) return;
+
+        booking.Status = status;
+        await db.UpdateAsync(booking);
     }
+
+    // ───────────────────────── Reviews ─────────────────────────
 
     public async Task<List<ReviewModel>> GetCaregiverReviewsAsync(int caregiverId)
     {
-        var reviews = new List<ReviewModel>();
+        var db = await GetDbAsync();
+        var profile = await db.Table<CaregiverProfileEntity>().Where(c => c.UserID == caregiverId).FirstOrDefaultAsync();
+        if (profile is null) return new List<ReviewModel>();
 
-        try
+        var reviews = await db.Table<ReviewEntity>().Where(r => r.CaregiverID == profile.CaregiverID).ToListAsync();
+
+        var result = new List<ReviewModel>();
+        foreach (var r in reviews.OrderByDescending(x => x.ReviewDate))
         {
-            await Task.Delay(400);
+            var client = await db.Table<User>().Where(u => u.Id == r.UserID).FirstOrDefaultAsync();
+            var booking = await db.Table<BookingEntity>().Where(b => b.BookingID == r.BookingID).FirstOrDefaultAsync();
+            var service = booking is null ? null : await db.Table<ServiceEntity>().Where(s => s.ServiceID == booking.ServiceID).FirstOrDefaultAsync();
 
-            reviews = new List<ReviewModel>
+            var stars = Math.Clamp(r.Rating, 0, 5);
+
+            result.Add(new ReviewModel
             {
-                new()
-                {
-                    ReviewID = 1,
-                    BookingID = 103,
-                    UserID = 1,
-                    CaregiverID = caregiverId,
-                    Rating = 5,
-                    ReviewText = "Very attentive and reliable. Would book again!",
-                    ClientName = "John Doe",
-                    ServiceName = "Child Care",
-                    ReviewDate = DateTime.Now.AddDays(-3).ToString("MMM dd, yyyy"),
-                    Stars = "★★★★★"
-                },
-                new()
-                {
-                    ReviewID = 2,
-                    BookingID = 90,
-                    UserID = 3,
-                    CaregiverID = caregiverId,
-                    Rating = 4,
-                    ReviewText = "Great communication, showed up on time.",
-                    ClientName = "Ana Reyes",
-                    ServiceName = "Elderly Care",
-                    ReviewDate = DateTime.Now.AddDays(-20).ToString("MMM dd, yyyy"),
-                    Stars = "★★★★☆"
-                }
-            };
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in GetCaregiverReviewsAsync: {ex.Message}");
+                ReviewID = r.ReviewID,
+                BookingID = r.BookingID,
+                UserID = r.UserID,
+                CaregiverID = r.CaregiverID,
+                Rating = r.Rating,
+                ReviewText = r.Comment,
+                ClientName = client is null ? "Anonymous" : $"{client.FirstName} {client.LastName}",
+                ServiceName = service?.ServiceName ?? string.Empty,
+                ReviewDate = r.ReviewDate.ToString("MMM dd, yyyy"),
+                Stars = new string('★', stars) + new string('☆', 5 - stars)
+            });
         }
 
-        return reviews;
+        return result;
     }
 
-    // Shared mock caregiver dataset used by both GetCaregiversAsync and GetCaregiverProfileAsync
-    private static List<CaregiverModel> GetMockCaregivers()
+    // ───────────────────────── Mapping helpers ─────────────────────────
+
+    private static async Task<CaregiverModel> ToCaregiverModelAsync(SQLiteAsyncConnection db, CaregiverProfileEntity entity, User? user)
     {
-        return new List<CaregiverModel>
+        var reviews = await db.Table<ReviewEntity>().Where(r => r.CaregiverID == entity.CaregiverID).ToListAsync();
+        var avgRating = reviews.Count > 0 ? reviews.Average(r => r.Rating) : 0;
+
+        var bio = entity.Bio ?? string.Empty;
+        var fullName = user is null ? "Unknown" : $"{user.FirstName} {user.LastName}".Trim();
+
+        return new CaregiverModel
         {
-            new()
-            {
-                CaregiverID = 1,
-                FullName = "Maria Santos",
-                Address = "Makati City",
-                ContactNo = "09123456789",
-                HourlyRate = 500,
-                HourlyRateDisplay = "₱500.00/Hour",
-                AvailabilityStatus = "Available",
-                AvailableDays = "1,2,3,4,5",
-                AvailabilityStartTime = new TimeSpan(8, 0, 0),
-                AvailabilityEndTime = new TimeSpan(17, 0, 0),
-                Bio = "Experienced caregiver with 10 years of experience in child care and elderly care services.",
-                ShortBio = "Experienced caregiver with 10 years...",
-                ServicesOffered = "Child Care, Elderly Care",
-                AvgRating = 4.8
-            },
-            new()
-            {
-                CaregiverID = 2,
-                FullName = "Juan dela Cruz",
-                Address = "Quezon City",
-                ContactNo = "09987654321",
-                HourlyRate = 450,
-                HourlyRateDisplay = "₱450.00/Hour",
-                AvailabilityStatus = "Available",
-                AvailableDays = "1,3,4,5,6",
-                AvailabilityStartTime = new TimeSpan(9, 0, 0),
-                AvailabilityEndTime = new TimeSpan(18, 0, 0),
-                Bio = "Specialized in pet care and house sitting with excellent references.",
-                ShortBio = "Specialized in pet care and house...",
-                ServicesOffered = "Pet Care, House Sitting",
-                AvgRating = 4.5
-            }
+            CaregiverID = user?.Id ?? entity.UserID, // exposed as the caregiver's UserID throughout this app
+            FullName = fullName,
+            Address = user?.Address ?? string.Empty,
+            ContactNo = user?.ContactNumber ?? string.Empty,
+            HourlyRate = entity.HourlyRate,
+            HourlyRateDisplay = $"₱{entity.HourlyRate:0.00}/Hour",
+            AvailabilityStatus = entity.AvailabilityStatus,
+            AvailableDays = entity.AvailableDays,
+            AvailabilityStartTime = ParseTimeOfDay(entity.DayStartTime, new TimeSpan(8, 0, 0)),
+            AvailabilityEndTime = ParseTimeOfDay(entity.DayEndTime, new TimeSpan(17, 0, 0)),
+            Bio = bio,
+            ShortBio = bio.Length > 60 ? bio[..60] + "..." : bio,
+            ServicesOffered = entity.ServicesOffered,
+            AvgRating = avgRating
         };
     }
+
+    private static async Task<BookingModel> ToBookingModelAsync(SQLiteAsyncConnection db, BookingEntity b, bool forCaregiverView)
+    {
+        var service = await db.Table<ServiceEntity>().Where(s => s.ServiceID == b.ServiceID).FirstOrDefaultAsync();
+
+        string otherPartyName;
+        if (forCaregiverView)
+        {
+            var client = await db.Table<User>().Where(u => u.Id == b.UserID).FirstOrDefaultAsync();
+            otherPartyName = client is null ? "Unknown" : $"{client.FirstName} {client.LastName}";
+        }
+        else
+        {
+            var profile = await db.Table<CaregiverProfileEntity>().Where(c => c.CaregiverID == b.CaregiverID).FirstOrDefaultAsync();
+            var caregiverUser = profile is null ? null : await db.Table<User>().Where(u => u.Id == profile.UserID).FirstOrDefaultAsync();
+            otherPartyName = caregiverUser is null ? "Unknown" : $"{caregiverUser.FirstName} {caregiverUser.LastName}";
+        }
+
+        var start = TimeSpan.TryParse(b.StartTime, out var s) ? s : TimeSpan.Zero;
+        var end = TimeSpan.TryParse(b.EndTime, out var e) ? e : TimeSpan.Zero;
+        var hasReview = await db.Table<ReviewEntity>().Where(r => r.BookingID == b.BookingID).CountAsync() > 0;
+        var (bg, fg) = StatusColors(b.Status);
+
+        return new BookingModel
+        {
+            BookingID = b.BookingID,
+            CaregiverID = b.CaregiverID,
+            CaregiverName = otherPartyName,
+            ServiceName = service?.ServiceName ?? string.Empty,
+            BookingDate = b.BookingDate,
+            StartTime = start,
+            EndTime = end,
+            Status = b.Status,
+            HasReview = hasReview,
+            DateTimeDisplay = $"{b.BookingDate:MMM dd, yyyy}\n{start:hh\\:mm} – {end:hh\\:mm}",
+            StatusColor = bg,
+            StatusTextColor = fg,
+            CanReview = !forCaregiverView && b.Status == "Completed" && !hasReview
+        };
+    }
+
+    private static TimeSpan ParseTimeOfDay(string? value, TimeSpan fallback)
+        => TimeSpan.TryParse(value, out var result) ? result : fallback;
+
+    private static (Color bg, Color fg) StatusColors(string status) => status switch
+    {
+        "Confirmed" => (Color.FromArgb("#e0f7fa"), Color.FromArgb("#006064")),
+        "Completed" => (Color.FromArgb("#e8f5e9"), Color.FromArgb("#2e7d32")),
+        "Cancelled" => (Color.FromArgb("#fdecea"), Color.FromArgb("#b71c1c")),
+        _ => (Color.FromArgb("#fff8e1"), Color.FromArgb("#8d6e00")), // Pending / default
+    };
 }

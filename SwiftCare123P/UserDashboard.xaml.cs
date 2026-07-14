@@ -66,57 +66,11 @@ public partial class UserDashboard : ContentPage
     {
         try
         {
-            await Task.Delay(500);
-
-            var caregivers = new List<CaregiverModel>
-            {
-                new()
-                {
-                    CaregiverID = 1,
-                    FullName = "Maria Santos",
-                    Address = "Makati City",
-                    ContactNo = "09123456789",
-                    HourlyRate = 500,
-                    HourlyRateDisplay = "₱500.00/Hour",
-                    AvailabilityStatus = "Available",
-                    AvailableDays = "1,2,3,4,5",
-                    Bio = "Experienced caregiver with 10 years of experience in child care and elderly care services.",
-                    ShortBio = "Experienced caregiver with 10 years...",
-                    ServicesOffered = "Child Care, Elderly Care",
-                    AvgRating = 4.8
-                },
-                new()
-                {
-                    CaregiverID = 2,
-                    FullName = "Juan dela Cruz",
-                    Address = "Quezon City",
-                    ContactNo = "09987654321",
-                    HourlyRate = 450,
-                    HourlyRateDisplay = "₱450.00/Hour",
-                    AvailabilityStatus = "Available",
-                    AvailableDays = "1,3,4,5,6",
-                    Bio = "Specialized in pet care and house sitting with excellent references.",
-                    ShortBio = "Specialized in pet care and house...",
-                    ServicesOffered = "Pet Care, House Sitting",
-                    AvgRating = 4.5
-                }
-            };
-
-            if (!string.IsNullOrEmpty(searchName))
-            {
-                caregivers = caregivers.Where(c => c.FullName?.Contains(searchName, StringComparison.OrdinalIgnoreCase) == true).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(searchService))
-            {
-                caregivers = caregivers.Where(c => c.ServicesOffered?.Contains(searchService, StringComparison.OrdinalIgnoreCase) == true).ToList();
-            }
+            var caregivers = await _dbService.GetCaregiversAsync(searchName, searchService, _userId);
 
             _caregivers.Clear();
             foreach (var caregiver in caregivers)
-            {
                 _caregivers.Add(caregiver);
-            }
 
             pnlNoCaregivers.IsVisible = _caregivers.Count == 0;
         }
@@ -130,49 +84,11 @@ public partial class UserDashboard : ContentPage
     {
         try
         {
-            await Task.Delay(500);
-
-            var bookings = new List<BookingModel>
-            {
-                new()
-                {
-                    BookingID = 1,
-                    CaregiverID = 1,
-                    CaregiverName = "Maria Santos",
-                    ServiceName = "Child Care",
-                    BookingDate = DateTime.Now.AddDays(2),
-                    StartTime = new TimeSpan(9, 0, 0),
-                    EndTime = new TimeSpan(17, 0, 0),
-                    Status = "Confirmed",
-                    HasReview = false,
-                    DateTimeDisplay = $"{DateTime.Now.AddDays(2):MMM dd, yyyy}\n09:00 – 17:00",
-                    StatusColor = Color.FromArgb("#e0f7fa"),
-                    StatusTextColor = Color.FromArgb("#006064"),
-                    CanReview = false
-                },
-                new()
-                {
-                    BookingID = 2,
-                    CaregiverID = 2,
-                    CaregiverName = "Juan dela Cruz",
-                    ServiceName = "Pet Care",
-                    BookingDate = DateTime.Now.AddDays(-5),
-                    StartTime = new TimeSpan(10, 0, 0),
-                    EndTime = new TimeSpan(16, 0, 0),
-                    Status = "Completed",
-                    HasReview = false,
-                    DateTimeDisplay = $"{DateTime.Now.AddDays(-5):MMM dd, yyyy}\n10:00 – 16:00",
-                    StatusColor = Color.FromArgb("#e8f5e9"),
-                    StatusTextColor = Color.FromArgb("#2e7d32"),
-                    CanReview = true
-                }
-            };
+            var bookings = await _dbService.GetUserBookingsAsync(_userId);
 
             _bookings.Clear();
             foreach (var booking in bookings)
-            {
                 _bookings.Add(booking);
-            }
 
             pnlNoBookings.IsVisible = _bookings.Count == 0;
         }
@@ -186,19 +102,46 @@ public partial class UserDashboard : ContentPage
     {
         try
         {
-            await Task.Delay(300);
+            var profile = await _dbService.GetUserProfileAsync(_userId);
+            if (profile is null) return;
 
-            txtProfileFirstName.Text = "John";
-            txtProfileLastName.Text = "Doe";
-            txtProfileEmail.Text = "john.doe@example.com";
-            txtProfileContact.Text = "09123456789";
-            txtProfileGender.Text = "Male";
-            txtProfileBirthdate.Text = "May 15, 1990";
-            txtProfileAddress.Text = "123 Main St, Makati City";
+            txtProfileFirstName.Text = profile.FirstName;
+            txtProfileLastName.Text = profile.LastName;
+            txtProfileEmail.Text = profile.Email;
+            txtProfileContact.Text = profile.ContactNo;
+            txtProfileGender.Text = profile.Gender;
+            txtProfileBirthdate.Text = profile.Birthdate?.ToString("MMMM dd, yyyy") ?? string.Empty;
+            txtProfileAddress.Text = profile.Address;
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"Failed to load profile: {ex.Message}", "OK");
+        }
+    }
+
+    private async void OnSaveProfileClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            var updated = new UserModel
+            {
+                UserID = _userId,
+                FirstName = txtProfileFirstName.Text?.Trim(),
+                LastName = txtProfileLastName.Text?.Trim(),
+                ContactNo = txtProfileContact.Text?.Trim(),
+                Gender = txtProfileGender.Text?.Trim(),
+                Address = txtProfileAddress.Text?.Trim()
+            };
+
+            var success = await _dbService.UpdateUserProfileAsync(updated);
+
+            lblProfileMsg.Text = success ? "✓ Profile updated successfully!" : "Could not find your account.";
+            lblProfileMsg.TextColor = success ? Color.FromArgb("#00838f") : Color.FromArgb("#e53935");
+        }
+        catch (Exception ex)
+        {
+            lblProfileMsg.Text = $"Error: {ex.Message}";
+            lblProfileMsg.TextColor = Color.FromArgb("#e53935");
         }
     }
 
@@ -246,20 +189,6 @@ public partial class UserDashboard : ContentPage
         if (sender is Button button && button.CommandParameter is BookingModel booking)
         {
             await DisplayAlert("Review", $"Review for booking {booking.BookingID}", "OK");
-        }
-    }
-
-    private async void OnSaveProfileClicked(object sender, EventArgs e)
-    {
-        try
-        {
-            lblProfileMsg.Text = "✓ Profile updated successfully!";
-            lblProfileMsg.TextColor = Color.FromArgb("#00838f");
-        }
-        catch (Exception ex)
-        {
-            lblProfileMsg.Text = $"Error: {ex.Message}";
-            lblProfileMsg.TextColor = Color.FromArgb("#e53935");
         }
     }
 

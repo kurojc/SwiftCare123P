@@ -12,6 +12,8 @@ public partial class CaregiverDashboard : ContentPage
     public CaregiverDashboard()
     {
         InitializeComponent();
+        NavigationPage.SetHasNavigationBar(this, false);
+
         _viewModel = new CaregiverDashboardViewModel();
         BindingContext = _viewModel;
     }
@@ -20,5 +22,10 @@ public partial class CaregiverDashboard : ContentPage
     {
         base.OnAppearing();
         await _viewModel.LoadDataCommand.ExecuteAsync(null);
+    }
+
+    private async void OnBackClicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
     }
 }

@@ -3,22 +3,25 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SwiftCare123P.CaregiverDashboard"
              Title="Caregiver Dashboard"
-             BackgroundColor="#f4fbfc">
+             BackgroundColor="#f4fbfc"
+             NavigationPage.HasNavigationBar="False">
+    
+    <Grid RowDefinitions="Auto,Auto,*" Padding="0">
 
-    <Grid RowDefinitions="Auto,*" Padding="0">
-        
         <!-- Top Bar -->
-        <Grid Grid.Row="0" RowDefinitions="Auto" ColumnDefinitions="*,Auto" Padding="20,16" BackgroundColor="White" ColumnSpacing="14">
-            <Label Grid.Column="0" 
-                   Text="{Binding TopbarTitle}" 
-                   FontSize="20" 
-                   FontAttributes="Bold" 
-                   TextColor="#062035" 
-                   VerticalTextAlignment="Center"/>
+        <Grid Grid.Row="0" RowDefinitions="Auto" ColumnDefinitions="Auto,*,Auto" Padding="16,16" BackgroundColor="White" ColumnSpacing="10">
+            <Button Grid.Column="0" Text="←" FontSize="20" BackgroundColor="Transparent" TextColor="#062035"
+            Padding="0" WidthRequest="36" Clicked="OnBackClicked"/>
             <Label Grid.Column="1" 
-                   FontSize="14" 
-                   TextColor="#4a7a92"
-                   VerticalTextAlignment="Center">
+           Text="{Binding TopbarTitle}" 
+           FontSize="20" 
+           FontAttributes="Bold" 
+           TextColor="#062035" 
+           VerticalTextAlignment="Center"/>
+            <Label Grid.Column="2" 
+           FontSize="14" 
+           TextColor="#4a7a92"
+           VerticalTextAlignment="Center">
                 <Label.FormattedText>
                     <FormattedString>
                         <Span Text="Good day, "/>
@@ -28,8 +31,65 @@
             </Label>
         </Grid>
 
+        <!-- Tab Navigation -->
+        <!-- NEW -->
+        <FlexLayout Grid.Row="1" Wrap="Wrap" JustifyContent="Center" AlignItems="Center" BackgroundColor="White" Padding="12,10">
+            <Button Text="🏠 Overview" Command="{Binding ShowPanelCommand}" CommandParameter="overview"
+                FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsOverviewPanelVisible}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#006064"/>
+                            <Setter Property="TextColor" Value="White"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="👤 My Profile" Command="{Binding ShowPanelCommand}" CommandParameter="profile"
+                FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsProfilePanelVisible}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#006064"/>
+                            <Setter Property="TextColor" Value="White"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="📅 Bookings" Command="{Binding ShowPanelCommand}" CommandParameter="bookings"
+                FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsBookingsPanelVisible}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#006064"/>
+                            <Setter Property="TextColor" Value="White"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="🕐 Availability" Command="{Binding ShowPanelCommand}" CommandParameter="availability"
+                FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsAvailabilityPanelVisible}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#006064"/>
+                            <Setter Property="TextColor" Value="White"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="⭐ Reviews" Command="{Binding ShowPanelCommand}" CommandParameter="reviews"
+                FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#e8f4f8" TextColor="#4a7a92" Margin="4,4,4,4">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsReviewsPanelVisible}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#006064"/>
+                            <Setter Property="TextColor" Value="White"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="Log Out" Command="{Binding LogoutCommand}"
+                FontSize="12" CornerRadius="18" Padding="14,8" BackgroundColor="#fdecea" TextColor="#e53935"/>
+        </FlexLayout>
+
         <!-- Main Content -->
-        <ScrollView Grid.Row="1" Padding="16">
+        <ScrollView Grid.Row="2" Padding="16">
             <VerticalStackLayout Spacing="20">
 
                 <!-- Overview Panel -->
@@ -152,7 +212,7 @@
 
                             <VerticalStackLayout Spacing="6">
                                 <Label Text="Hourly Rate (₱)" FontSize="12" FontAttributes="Bold" TextColor="#1a4a62"/>
-                                <Entry x:Name="EntryProfileRate" Placeholder="e.g. 150" Keyboard="Numeric" Text="{Binding ProfileModel.HourlyRateDisplay}"/>
+                                <Entry x:Name="EntryProfileRate" Placeholder="e.g. 150" Keyboard="Numeric" Text="{Binding ProfileModel.HourlyRate}"/>
                             </VerticalStackLayout>
 
                             <VerticalStackLayout Spacing="6">
@@ -176,31 +236,31 @@
                     <Border StrokeShape="RoundRectangle(14)" StrokeThickness="1" Stroke="#e8f4f8" Padding="16">
                         <VerticalStackLayout Spacing="12">
                             <Label Text="Services I Offer" FontSize="16" FontAttributes="Bold" TextColor="#062035"/>
-                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                                <CheckBox Grid.Row="0" Grid.Column="0" 
-                                          IsChecked="{Binding IsServiceSelected[0]}"
-                                          Color="#00838f"/>
-                                <Label Grid.Row="0" Grid.Column="0" Margin="40,0,0,0" Text="👶 Child Care" FontSize="12" VerticalOptions="Center"/>
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="8">
+                                    <CheckBox IsChecked="{Binding IsServiceSelected[0]}" Color="#00838f" VerticalOptions="Center"/>
+                                    <Label Text="👶 Child Care" FontSize="12" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
 
-                                <CheckBox Grid.Row="0" Grid.Column="1" 
-                                          IsChecked="{Binding IsServiceSelected[1]}"
-                                          Color="#00838f"/>
-                                <Label Grid.Row="0" Grid.Column="1" Margin="40,0,0,0" Text="👴 Elderly Care" FontSize="12" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="8">
+                                    <CheckBox IsChecked="{Binding IsServiceSelected[1]}" Color="#00838f" VerticalOptions="Center"/>
+                                    <Label Text="👴 Elderly Care" FontSize="12" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
 
-                                <CheckBox Grid.Row="1" Grid.Column="0" 
-                                          IsChecked="{Binding IsServiceSelected[2]}"
-                                          Color="#00838f"/>
-                                <Label Grid.Row="1" Grid.Column="0" Margin="40,0,0,0" Text="♿ Special Needs" FontSize="12" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="8">
+                                    <CheckBox IsChecked="{Binding IsServiceSelected[2]}" Color="#00838f" VerticalOptions="Center"/>
+                                    <Label Text="🐾 Pet Care" FontSize="12" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
 
-                                <CheckBox Grid.Row="1" Grid.Column="1" 
-                                          IsChecked="{Binding IsServiceSelected[3]}"
-                                          Color="#00838f"/>
-                                <Label Grid.Row="1" Grid.Column="1" Margin="40,0,0,0" Text="🐾 Pet Care" FontSize="12" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="8">
+                                    <CheckBox IsChecked="{Binding IsServiceSelected[3]}" Color="#00838f" VerticalOptions="Center"/>
+                                    <Label Text="🏠 House Sitting" FontSize="12" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
 
-                                <CheckBox Grid.Row="2" Grid.Column="0" 
-                                          IsChecked="{Binding IsServiceSelected[4]}"
-                                          Color="#00838f"/>
-                                <Label Grid.Row="2" Grid.Column="0" Margin="40,0,0,0" Text="🏠 House Sitting" FontSize="12" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Spacing="8">
+                                    <CheckBox IsChecked="{Binding IsServiceSelected[4]}" Color="#00838f" VerticalOptions="Center"/>
+                                    <Label Text="♿ Special Needs" FontSize="12" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
                             </Grid>
                         </VerticalStackLayout>
                     </Border>
@@ -271,32 +331,55 @@
 
                 <!-- Availability Panel -->
                 <VerticalStackLayout IsVisible="{Binding IsAvailabilityPanelVisible}" Spacing="12">
+                    <!-- Weekly Availability -->
                     <Border StrokeShape="RoundRectangle(14)" StrokeThickness="1" Stroke="#e8f4f8" Padding="16">
                         <VerticalStackLayout Spacing="16">
                             <Label Text="Weekly Availability" FontSize="16" FontAttributes="Bold" TextColor="#062035"/>
-                            
-                            <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="8">
-                                <Border Grid.Column="0" StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="8">
-                                    <CheckBox IsChecked="{Binding AvailableDays[0]}" Color="#00838f"/>
-                                </Border>
-                                <Border Grid.Column="1" StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="8">
-                                    <CheckBox IsChecked="{Binding AvailableDays[1]}" Color="#00838f"/>
-                                </Border>
-                                <Border Grid.Column="2" StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="8">
-                                    <CheckBox IsChecked="{Binding AvailableDays[2]}" Color="#00838f"/>
-                                </Border>
-                                <Border Grid.Column="3" StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="8">
-                                    <CheckBox IsChecked="{Binding AvailableDays[3]}" Color="#00838f"/>
-                                </Border>
-                                <Border Grid.Column="4" StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="8">
-                                    <CheckBox IsChecked="{Binding AvailableDays[4]}" Color="#00838f"/>
-                                </Border>
-                                <Border Grid.Column="5" StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="8">
-                                    <CheckBox IsChecked="{Binding AvailableDays[5]}" Color="#00838f"/>
-                                </Border>
-                                <Border Grid.Column="6" StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="8">
-                                    <CheckBox IsChecked="{Binding AvailableDays[6]}" Color="#00838f"/>
-                                </Border>
+
+                            <!-- Index 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun — same order as the web app -->
+                            <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="6">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Text="Mon" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
+                                    <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
+                                        <CheckBox IsChecked="{Binding AvailableDays[0]}" Color="#00838f" HorizontalOptions="Center"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="Tue" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
+                                    <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
+                                        <CheckBox IsChecked="{Binding AvailableDays[1]}" Color="#00838f" HorizontalOptions="Center"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                    <Label Text="Wed" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
+                                    <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
+                                        <CheckBox IsChecked="{Binding AvailableDays[2]}" Color="#00838f" HorizontalOptions="Center"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="3" Spacing="4">
+                                    <Label Text="Thu" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
+                                    <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
+                                        <CheckBox IsChecked="{Binding AvailableDays[3]}" Color="#00838f" HorizontalOptions="Center"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="4" Spacing="4">
+                                    <Label Text="Fri" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
+                                    <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
+                                        <CheckBox IsChecked="{Binding AvailableDays[4]}" Color="#00838f" HorizontalOptions="Center"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="5" Spacing="4">
+                                    <Label Text="Sat" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
+                                    <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
+                                        <CheckBox IsChecked="{Binding AvailableDays[5]}" Color="#00838f" HorizontalOptions="Center"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="6" Spacing="4">
+                                    <Label Text="Sun" FontSize="11" FontAttributes="Bold" TextColor="#1a4a62" HorizontalTextAlignment="Center"/>
+                                    <Border StrokeShape="RoundRectangle(10)" StrokeThickness="1" Stroke="#e8f4f8" Padding="6">
+                                        <CheckBox IsChecked="{Binding AvailableDays[6]}" Color="#00838f" HorizontalOptions="Center"/>
+                                    </Border>
+                                </VerticalStackLayout>
                             </Grid>
 
                             <VerticalStackLayout Spacing="12">
@@ -308,7 +391,7 @@
                                 </Grid>
                             </VerticalStackLayout>
 
-                            <Button Text="💾 Save Availability" 
+                            <Button Text="💾 Save Availability"
                                     Command="{Binding SaveAvailabilityCommand}"
                                     BackgroundColor="#006064"
                                     TextColor="White"
