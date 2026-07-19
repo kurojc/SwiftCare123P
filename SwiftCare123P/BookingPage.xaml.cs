@@ -168,12 +168,35 @@ public partial class BookingPage : ContentPage
         }
     }
 
-    private void OnCalendarDateSelected(DateTime date)
+    // NEW
+    private async void OnCalendarDateSelected(DateTime date)
     {
         _selectedDate = date;
         lblError.IsVisible = false;
         BuildCalendar(_calendarMonthAnchor);
         UpdateSummary();
+        await LoadBookedSlotsAsync(date);
+    }
+
+    private async Task LoadBookedSlotsAsync(DateTime date)
+    {
+        try
+        {
+            var slots = await _dbService.GetBookedSlotsAsync(_caregiver.CaregiverID, date);
+
+            if (slots.Count == 0)
+            {
+                borderBookedSlots.IsVisible = false;
+                return;
+            }
+
+            borderBookedSlots.IsVisible = true;
+            lblBookedSlots.Text = string.Join("\n", slots.Select(s => $"• {s.TimeRangeDisplay}"));
+        }
+        catch
+        {
+            borderBookedSlots.IsVisible = false;
+        }
     }
 
     private void OnPrevMonthClicked(object sender, EventArgs e)
@@ -265,11 +288,20 @@ public partial class BookingPage : ContentPage
             return;
         }
 
+        bool hasConflict = await _dbService.HasConflictingBookingAsync(_caregiver.CaregiverID, bookingDate, startTime, endTime);
+        if (hasConflict)
+        {
+            ShowError("This caregiver already has a booking during that time. Please choose a different time slot.");
+            return;
+        }
+
         if (bookingDate.Date == DateTime.Today && startTime <= DateTime.Now.TimeOfDay)
         {
             ShowError("Please choose a start time later than now.");
             return;
         }
+
+
 
         try
         {

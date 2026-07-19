@@ -227,6 +227,24 @@ public partial class UserDashboard : ContentPage
         }
     }
 
+    private async void OnCancelBookingClicked(object sender, EventArgs e)
+    {
+        if (sender is not Button button || button.CommandParameter is not BookingModel booking)
+            return;
+
+        bool confirm = await DisplayAlert(
+            "Cancel Booking",
+            $"Cancel your booking with {booking.CaregiverName} on {booking.BookingDate:MMM dd, yyyy}?",
+            "Yes, Cancel",
+            "No");
+
+        if (!confirm) return;
+
+        await _dbService.UpdateBookingStatusAsync(booking.BookingID, BookingStatus.Cancelled);
+        await DisplayAlert("Cancelled", "Your booking has been cancelled.", "OK");
+        await LoadBookings();
+    }
+
     private void OnTabBrowseClicked(object sender, EventArgs e) => ShowPanel("browse");
     private void OnTabBookingsClicked(object sender, EventArgs e) => ShowPanel("bookings");
     private void OnTabProfileClicked(object sender, EventArgs e) => ShowPanel("profile");

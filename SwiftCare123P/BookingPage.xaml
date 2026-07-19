@@ -84,6 +84,14 @@
                     </VerticalStackLayout>
                 </Border>
 
+                <!-- Already Booked Slots -->
+                <Border x:Name="borderBookedSlots" StrokeShape="RoundRectangle(14)" StrokeThickness="1" Stroke="#fdecea" Padding="16" IsVisible="False" BackgroundColor="#fff8f7">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Already Booked on This Date" FontSize="13" FontAttributes="Bold" TextColor="#b71c1c"/>
+                        <Label x:Name="lblBookedSlots" FontSize="12" TextColor="#e53935"/>
+                    </VerticalStackLayout>
+                </Border>
+
                 <!-- Time -->
                 <Border StrokeShape="RoundRectangle(14)" StrokeThickness="1" Stroke="#e8f4f8" Padding="16">
                     <VerticalStackLayout Spacing="14">

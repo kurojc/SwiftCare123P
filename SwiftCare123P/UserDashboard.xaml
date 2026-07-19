@@ -337,7 +337,7 @@
                                                                    Grid.ColumnSpan="2"
                                                                    Spacing="8">
                                                 <Button x:Name="ReviewButton"
-                                                        Text="⭐ Leave Review"
+                                                        Text="Leave Review"
                                                         BackgroundColor="#fff8e1"
                                                         TextColor="#f57c00"
                                                         FontAttributes="Bold"
@@ -347,6 +347,17 @@
                                                         Clicked="OnLeaveReviewClicked"
                                                         CommandParameter="{Binding .}"
                                                         CornerRadius="8" />
+                                                
+                                                <Button Text="Cancel Booking" BackgroundColor="#fdecea"
+                                                        TextColor="#b71c1c"
+                                                        FontAttributes="Bold"
+                                                        FontSize="12"
+                                                        Padding="12,6"
+                                                        IsVisible="{Binding CanCancel}"
+                                                        Clicked="OnCancelBookingClicked"
+                                                        CommandParameter="{Binding .}"
+                                                        CornerRadius="8" />
+                                                
                                                 <Label Text="✓ Reviewed"
                                                        FontSize="11"
                                                        FontAttributes="Bold"

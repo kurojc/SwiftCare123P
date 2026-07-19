@@ -271,6 +271,54 @@ public class DatabaseService : IDatabaseService
         return true;
     }
 
+    public async Task<bool> HasConflictingBookingAsync(int caregiverId, DateTime date, TimeSpan startTime, TimeSpan endTime)
+    {
+        var db = await GetDbAsync();
+
+        var profile = await db.Table<CaregiverProfileEntity>().Where(c => c.UserID == caregiverId).FirstOrDefaultAsync();
+        if (profile is null) return false;
+
+        var sameDayBookings = await db.Table<BookingEntity>()
+            .Where(b => b.CaregiverID == profile.CaregiverID && b.BookingDate == date.Date)
+            .ToListAsync();
+
+        foreach (var b in sameDayBookings)
+        {
+            if (b.Status == BookingStatus.Cancelled) continue;
+
+            var existingStart = TimeSpan.TryParse(b.StartTime, out var s) ? s : TimeSpan.Zero;
+            var existingEnd = TimeSpan.TryParse(b.EndTime, out var e) ? e : TimeSpan.Zero;
+
+            // Two time ranges overlap unless one ends at or before the other starts.
+            bool overlaps = startTime < existingEnd && existingStart < endTime;
+            if (overlaps) return true;
+        }
+
+        return false;
+    }
+
+    public async Task<List<BookedSlotModel>> GetBookedSlotsAsync(int caregiverId, DateTime date)
+    {
+        var db = await GetDbAsync();
+
+        var profile = await db.Table<CaregiverProfileEntity>().Where(c => c.UserID == caregiverId).FirstOrDefaultAsync();
+        if (profile is null) return new List<BookedSlotModel>();
+
+        var bookings = await db.Table<BookingEntity>()
+            .Where(b => b.CaregiverID == profile.CaregiverID && b.BookingDate == date.Date)
+            .ToListAsync();
+
+        return bookings
+            .Where(b => b.Status != BookingStatus.Cancelled)
+            .Select(b => new BookedSlotModel
+            {
+                StartTime = TimeSpan.TryParse(b.StartTime, out var s) ? s : TimeSpan.Zero,
+                EndTime = TimeSpan.TryParse(b.EndTime, out var e) ? e : TimeSpan.Zero
+            })
+            .OrderBy(x => x.StartTime)
+            .ToList();
+    }
+
     // ───────────────────────── Services ─────────────────────────
 
     public async Task<List<ServiceModel>> GetServicesAsync()
@@ -388,6 +436,7 @@ public class DatabaseService : IDatabaseService
             StatusColor = bg,
             StatusTextColor = fg,
             CanReview = !forCaregiverView && b.Status == BookingStatus.Completed && !hasReview,
+            CanCancel = !forCaregiverView && (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Confirmed),
 
 
             // Caregiver-side booking actions: only ever offered to the caregiver's own view,

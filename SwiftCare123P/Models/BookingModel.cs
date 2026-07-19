@@ -21,6 +21,7 @@ public class BookingModel
     public Color? StatusColor { get; set; }
     public Color? StatusTextColor { get; set; }
     public bool CanReview { get; set; }
+    public bool CanCancel { get; set; }
     public string? DateTimeDisplay { get; set; }
 
     // --- Caregiver-side action availability (computed from Status, caregiver view only) ---

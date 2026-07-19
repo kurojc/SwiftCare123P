@@ -38,4 +38,9 @@ public interface IDatabaseService
     // --- Reviews ---
     Task<List<ReviewModel>> GetCaregiverReviewsAsync(int caregiverId);
     Task<bool> CreateReviewAsync(int bookingId, int userId, int rating, string comment);
+
+    // --- Booking conflict checks ---
+    // caregiverId is the caregiver's UserID (same convention as everywhere else).
+    Task<bool> HasConflictingBookingAsync(int caregiverId, DateTime date, TimeSpan startTime, TimeSpan endTime);
+    Task<List<BookedSlotModel>> GetBookedSlotsAsync(int caregiverId, DateTime date);
 }
